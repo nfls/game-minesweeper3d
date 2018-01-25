@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BlockController : MonoBehaviour
-{
+public class BlockController : MonoBehaviour {
 	public float explosionPower = 600f;
 	public float explosionRadius = 2f;
 	public float explosionOffset = 2f;
@@ -36,13 +35,11 @@ public class BlockController : MonoBehaviour
 	private Collider collider;
 	private TextMesh textMesh;
 
-	void Start()
-	{
+	void Start() {
 
 	}
 
-	void Update()
-	{
+	void Update() {
 		if (state != BlockState.HIDDEN) {
 			Quaternion rotation = text.transform.rotation;
 			rotation.SetLookRotation(GameController.mainCamera.transform.forward, GameController.mainCamera.transform.up);
@@ -50,8 +47,7 @@ public class BlockController : MonoBehaviour
 		}
 	}
 
-	public void Init(GameController gameController, int xNum, int yNum, int zNum)
-	{
+	public void Init(GameController gameController, int xNum, int yNum, int zNum) {
 		this.game = gameController;
 
 		this.xNum = xNum;
@@ -77,8 +73,7 @@ public class BlockController : MonoBehaviour
 		SetState(BlockState.HIDDEN);
 	}
 
-	public void SetNeighbors(List<BlockController> neighbors)
-	{
+	public void SetNeighbors(List<BlockController> neighbors) {
 		this.neighbors = neighbors;
 		minesNearBy = 0;
 
@@ -89,13 +84,11 @@ public class BlockController : MonoBehaviour
 		}
 	}
 
-	public void SetMine(bool isMine)
-	{
+	public void SetMine(bool isMine) {
 		this.isMine = isMine;
 	}
 
-	public void SetState(BlockState state)
-	{
+	public void SetState(BlockState state) {
 		this.state = state;
 
 		switch (this.state) {
@@ -114,23 +107,19 @@ public class BlockController : MonoBehaviour
 		}
 	}
 
-	public BlockState GetState()
-	{
+	public BlockState GetState() {
 		return state;
 	}
 
-	public bool IsMine()
-	{
+	public bool IsMine() {
 		return isMine;
 	}
 
-	public int[] GetXyzNum()
-	{
+	public int[] GetXyzNum() {
 		return new int[] { xNum, yNum, zNum };
 	}
 
-	public void PrintNeighbor()
-	{
+	public void PrintNeighbor() {
 		print("Center Block : [x=" + xNum + ",y=" + yNum + ",z=" + zNum + "]");
 		print("Number of mines" + minesNearBy);
 		for (int i = 0; i < neighbors.Count; i++) {
@@ -141,8 +130,7 @@ public class BlockController : MonoBehaviour
 		}
 	}
 
-	private void OnHidden()
-	{
+	private void OnHidden() {
 		cube.gameObject.SetActive(true);
 		text.gameObject.SetActive(false);
 
@@ -150,11 +138,10 @@ public class BlockController : MonoBehaviour
 
 		text.transform.localEulerAngles = Vector3.zero;
 
-		cubeRenderer.material = AppearanceManager.GetBlockSurfaceMaterial();
+		cubeRenderer.material = ResourcesManager.GetBlockSurfaceMaterial();
 	}
 
-	private void OnFlagged()
-	{
+	private void OnFlagged() {
 		game.OnBlockFlagged(this);
 
 		cube.gameObject.SetActive(false);
@@ -165,17 +152,16 @@ public class BlockController : MonoBehaviour
 		cube.parent.gameObject.layer = LayerMask.NameToLayer("TextBlock");
 
 		textMesh.text = "!";
-		textMesh.font = AppearanceManager.GetFont();
-		textMesh.fontStyle = AppearanceManager.GetFontStyle();
+		textMesh.font = ResourcesManager.GetFont();
+		textMesh.fontStyle = ResourcesManager.GetFontStyle();
 
-		textRenderer.material = AppearanceManager.GetTextMaterial();
-		textRenderer.material.color = AppearanceManager.GetTextColor("Flag");
+		textRenderer.material = ResourcesManager.GetTextMaterial();
+		textRenderer.material.color = ResourcesManager.GetTextColor("Flag");
 
 		text.localScale = new Vector3(0.025f, 0.025f, 0.025f);
 	}
 
-	private void OnMarked()
-	{
+	private void OnMarked() {
 		game.OnBlockDeflagged(this);
 
 		cube.gameObject.SetActive(false);
@@ -185,18 +171,16 @@ public class BlockController : MonoBehaviour
 
 		cube.parent.gameObject.layer = LayerMask.NameToLayer("TextBlock");
 
-		textMesh.text = "?";
-		textMesh.font = AppearanceManager.GetFont();
-		textMesh.fontStyle = AppearanceManager.GetFontStyle();
+		textMesh.font = ResourcesManager.GetFont();
+		textMesh.fontStyle = ResourcesManager.GetFontStyle();
 
-		textRenderer.material = AppearanceManager.GetTextMaterial();
-		textRenderer.material.color = AppearanceManager.GetTextColor("Mark");
+		textRenderer.material = ResourcesManager.GetTextMaterial();
+		textRenderer.material.color = ResourcesManager.GetTextColor("Mark");
 
 		text.localScale = new Vector3(0.025f, 0.025f, 0.025f);
 	}
 
-	private void OnMined()
-	{
+	private void OnMined() {
 		cube.gameObject.SetActive(false);
 		text.gameObject.SetActive(true);
 
@@ -204,11 +188,11 @@ public class BlockController : MonoBehaviour
 
 		if (isMine) {
 			textMesh.text = "X";
-			textMesh.font = AppearanceManager.GetFont();
-			textMesh.fontStyle = AppearanceManager.GetFontStyle();
+			textMesh.font = ResourcesManager.GetFont();
+			textMesh.fontStyle = ResourcesManager.GetFontStyle();
 
-			textRenderer.material = AppearanceManager.GetTextMaterial();
-			textRenderer.material.color = AppearanceManager.GetTextColor("Mine");
+			textRenderer.material = ResourcesManager.GetTextMaterial();
+			textRenderer.material.color = ResourcesManager.GetTextColor("Mine");
 			text.localScale = new Vector3(0.03f, 0.03f, 0.03f);
 
 			StartCoroutine(Explode());
@@ -226,12 +210,12 @@ public class BlockController : MonoBehaviour
 
 			AudioSource.PlayClipAtPoint(safeSound, transform.position);
 
-			textMesh.font = AppearanceManager.GetFont();
-			textMesh.fontStyle = AppearanceManager.GetFontStyle();
+			textMesh.font = ResourcesManager.GetFont();
+			textMesh.fontStyle = ResourcesManager.GetFontStyle();
 
-			textRenderer.material = AppearanceManager.GetTextMaterial();
-			//textRenderer.material.color = AppearanceManager.GetTextColor(minesNearBy);
-			textRenderer.material.color = AppearanceManager.GetTextColor(minesNearBy);
+			textRenderer.material = ResourcesManager.GetTextMaterial();
+			//textRenderer.material.color = ResourcesManager.GetTextColor(minesNearBy);
+			textRenderer.material.color = ResourcesManager.GetTextColor(minesNearBy);
 			if (minesNearBy < 10) {
 				text.localScale = new Vector3(0.025f, 0.025f, 0.025f);
 			} else {
@@ -242,8 +226,7 @@ public class BlockController : MonoBehaviour
 		game.OnBlockMined(this);
 	}
 
-	public IEnumerator Explode()
-	{
+	public IEnumerator Explode() {
 		float duration = explosionDelay;
 		while (duration > 0) {
 			text.gameObject.SetActive(!text.gameObject.activeSelf);
@@ -270,15 +253,13 @@ public class BlockController : MonoBehaviour
 		gameObject.SetActive(false);
 	}
 
-	public void OnNeighborDestroyed(BlockController neighbor)
-	{
+	public void OnNeighborDestroyed(BlockController neighbor) {
 		if (neighbors.Contains(neighbor)) {
 			neighbors.Remove(neighbor);
 		}
 	}
 
-	public void OnDestroyed()
-	{
+	public void OnDestroyed() {
 		for (int i = 0; i < neighbors.Count; i++) {
 			neighbors[i].OnNeighborDestroyed(this);
 		}

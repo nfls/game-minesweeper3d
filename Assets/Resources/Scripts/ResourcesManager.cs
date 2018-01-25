@@ -3,35 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class AppearanceManager : MonoBehaviour
-{
-	private static BlockSurfaceStyle blockSurfaceStyle;
-	private static NumFont textFont;
-	private static FontStyle fontStyle;
-	private static NumColorSet textColorSet;
+public class ResourcesManager : MonoBehaviour {
+	static BlockSurfaceStyle blockSurfaceStyle;
+	static NumFont textFont;
+	static FontStyle fontStyle;
+	static NumColorSet textColorSet;
 
-	private static Material blockSurfaceMaterial;
-	private static Material textMaterial;
-	private static Font font;
-	private static Color[] textColors;
-	private static Color backgroundColor;
+	static Material blockSurfaceMaterial;
+	static Material textMaterial;
+	static Font font;
+	static Color[] textColors;
+	static Color backgroundColor;
 
-	private static TextAsset textColorSetsFile;
+	static TextAsset textColorSetsFile;
 
-	void Start()
-	{
-
-	}
-
-	void Update()
-	{
-
-	}
-
-	public static void Init()
-	{
+	public static void Init() {
 		textColorSetsFile = (TextAsset)Resources.Load("Documents/TextColorSets");
-		GameController.mainCamera.backgroundColor = UserManager.GetPreferredBackgroundColor();
+		GameController.mainCamera.backgroundColor = PreferencesManager.GetPreferredBackgroundColor();
 		SetAppearance();
 		/*
 		print(textColors.Length);
@@ -41,67 +29,56 @@ public class AppearanceManager : MonoBehaviour
 		*/
 	}
 
-	public static void SetAppearance()
-	{
+	public static void SetAppearance() {
 		SetBlockSurfaceStyle(BlockSurfaceStyle.Default);
 		SetTextFont(NumFont.Futura);
 		SetFontStyle(FontStyle.Normal);
 		SetTextColorSet(NumColorSet.Default);
 	}
 
-	public static void SetAppearance(BlockSurfaceStyle blockSurfaceStyle, NumFont textFont, FontStyle textStyle, NumColorSet textColorSet)
-	{
+	public static void SetAppearance(BlockSurfaceStyle blockSurfaceStyle, NumFont textFont, FontStyle textStyle, NumColorSet textColorSet) {
 		SetBlockSurfaceStyle(blockSurfaceStyle);
 		SetTextFont(textFont);
 		SetFontStyle(textStyle);
 		SetTextColorSet(textColorSet);
 	}
 
-	public static void SetBlockSurfaceStyle(BlockSurfaceStyle style)
-	{
+	public static void SetBlockSurfaceStyle(BlockSurfaceStyle style) {
 		blockSurfaceStyle = style;
 		LoadBlockSurfaceStyle();
 	}
 
-	public static void SetTextFont(NumFont font)
-	{
+	public static void SetTextFont(NumFont font) {
 		textFont = font;
 		LoadTextFont();
 	}
 
-	public static void SetFontStyle(FontStyle style)
-	{
+	public static void SetFontStyle(FontStyle style) {
 		fontStyle = style;
 	}
 
-	public static void SetTextColorSet(NumColorSet colorSet)
-	{
+	public static void SetTextColorSet(NumColorSet colorSet) {
 		textColorSet = colorSet;
 		LoadTextColorSet();
 	}
 
-	public static Material GetBlockSurfaceMaterial()
-	{
+	public static Material GetBlockSurfaceMaterial() {
 		return blockSurfaceMaterial;
 	}
 
-	public static Material GetTextMaterial()
-	{
+	public static Material GetTextMaterial() {
 		return textMaterial;
 	}
 
-	public static Font GetFont()
-	{
+	public static Font GetFont() {
 		return font;
 	}
 
-	public static FontStyle GetFontStyle()
-	{
+	public static FontStyle GetFontStyle() {
 		return fontStyle;
 	}
 
-	public static Color GetTextColor(int num)
-	{
+	public static Color GetTextColor(int num) {
 		if (num >= 1 && num <= 26) {
 			return textColors[num - 1];
 		} else {
@@ -109,8 +86,7 @@ public class AppearanceManager : MonoBehaviour
 		}
 	}
 
-	public static Color GetTextColor(string symbol)
-	{
+	public static Color GetTextColor(string symbol) {
 		switch (symbol) {
 			case "Flag":
 				return textColors[26];
@@ -123,19 +99,16 @@ public class AppearanceManager : MonoBehaviour
 		}
 	}
 
-	public static void LoadBlockSurfaceStyle()
-	{
+	public static void LoadBlockSurfaceStyle() {
 		blockSurfaceMaterial = (Material)Resources.Load("Materials/" + blockSurfaceStyle.ToString() + "BlockSurfaceMaterial");
 	}
 
-	public static void LoadTextFont()
-	{
+	public static void LoadTextFont() {
 		font = (Font)Resources.Load("Fonts/" + textFont.ToString());
 		textMaterial = (Material)Resources.Load("Materials/" + textFont.ToString() + "TextMaterial");
 	}
 
-	public static void LoadTextColorSet()
-	{
+	public static void LoadTextColorSet() {
 
 		textColors = new Color[29];
 

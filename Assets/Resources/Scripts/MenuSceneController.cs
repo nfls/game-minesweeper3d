@@ -3,21 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using System;
 
-public class MenuSceneController : MonoBehaviour
-{
+public class MenuSceneController : MonoBehaviour {
 	public GameObject background;
 	public GameObject mainMenu;
 
-	private NotificationManager notificationManager;
+	NotificationManager notificationManager;
 
-	private Stack<GameObject> previousMenus;
+	Stack<GameObject> previousMenus;
 
-	private Toggle audioToggle;
+	Toggle audioToggle;
 
-	void Start()
-	{
+	void Start() {
 		//background = GameObject.Find("Background Controller").gameObject;
 		//mainMenuCanvas = GameObject.Find("Main Menu").gameObject;
 		notificationManager = GetComponent<NotificationManager>();
@@ -45,16 +42,13 @@ public class MenuSceneController : MonoBehaviour
 		}
 
 		NetUtils.Init();
-		StartCoroutine(NetUtils.GetRefreshToken("test", "fucknfls"));
 	}
 
-	void Update()
-	{
+	void Update() {
 
 	}
 
-	public void OnBackgroundToggleChanged(GameObject toggle)
-	{
+	public void OnBackgroundToggleChanged(GameObject toggle) {
 		if (toggle == null) {
 			return;
 		}
@@ -68,15 +62,13 @@ public class MenuSceneController : MonoBehaviour
 		}
 	}
 
-	public void OnChangeMenuButtonClicked(GameObject subCanvas)
-	{
+	public void OnChangeMenuButtonClicked(GameObject subCanvas) {
 		previousMenus.Peek().SetActive(false);
 		previousMenus.Push(subCanvas);
 		subCanvas.SetActive(true);
 	}
 
-	public void OnQuitButtonClicked()
-	{
+	public void OnQuitButtonClicked() {
 #if UNITY_EDITOR
 		UnityEditor.EditorApplication.isPlaying = false;
 #else
@@ -84,8 +76,7 @@ public class MenuSceneController : MonoBehaviour
 #endif
 	}
 
-	public void OnSliderChanged(GameObject slider)
-	{
+	public void OnSliderChanged(GameObject slider) {
 		int v = (int)slider.GetComponent<Slider>().value;
 		if (slider.name.Contains("Mines")) {
 			InGameData.minesNum = v;
@@ -110,25 +101,21 @@ public class MenuSceneController : MonoBehaviour
 		slider.transform.Find("Num Text").GetComponent<Text>().text = v + "";
 	}
 
-	public void PlayStandardMode()
-	{
+	public void PlayStandardMode() {
 		InGameData.SetStandardModeData();
 		Play();
 	}
 
-	public void Play()
-	{
+	public void Play() {
 		SceneManager.LoadScene("GameScene");
 	}
 
-	public void OnBackButtonClicked()
-	{
+	public void OnBackButtonClicked() {
 		previousMenus.Pop().SetActive(false);
 		previousMenus.Peek().SetActive(true);
 	}
 
-	public void OnAudioToggleChanged()
-	{
+	public void OnAudioToggleChanged() {
 		if (audioToggle == null) {
 			return;
 		}

@@ -2,23 +2,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AchievementManager : MonoBehaviour
-{
-	private List<AchievementInfo> achievements;
-	private TextAsset achievementsInfo;
+public class AchievementManager {
 
-	public void Init()
-	{
+	public static List<AchievementType> achievementTypes;
+	public static List<AchievementInfo> achievementInfos;
 
-	}
+	public static Dictionary<string, int> achievementProgresses;
+	public static Dictionary<string, bool> achievementFinishedInfos;
 
-	public void Notify(AchievementType achievementType)
-	{
+	public static void Init() {
 
 	}
 
-	public enum AchievementType
-	{
+	public static void InitData() {
+		foreach (var item in achievementTypes) {
+			achievementProgresses[item.ToString()] = 0;
+		}
+		foreach (var item in achievementInfos) {
+			achievementFinishedInfos[item.ToString()] = false;
+		}
+	}
+
+	public enum AchievementType {
 		NumOfMinedBlock,
 		NumOfSafeBlock,
 		NumOfUnsafeBlock,
@@ -38,8 +43,7 @@ public class AchievementManager : MonoBehaviour
 		PlayerLevel
 	}
 
-	public class AchievementInfo
-	{
+	public class AchievementInfo {
 		public AchievementType achievementType;
 		public string title;
 		public string description;

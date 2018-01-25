@@ -4,8 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class GameController : MonoBehaviour
-{
+public class GameController : MonoBehaviour {
 	public float fieldRotateSpeed = 15f;
 	public float cameraMoveSpeed = 10f;
 	public float minDistance = 1f;
@@ -24,11 +23,13 @@ public class GameController : MonoBehaviour
 	public float cameraShakeAngle = 15f;
 
 	protected bool gameOver;
+	protected bool paused;
 
 	protected int minesLeft;
 
-	private GameObject hudCanvas;
-	private GameObject menuCanvas;
+	GameObject hudCanvas;
+	GameObject menuCanvas;
+	GameObject pauseCanvas;
 
 	protected Vector3 mainCameraInitialPosition;
 	protected Quaternion mainCameraInitialRotation;
@@ -45,10 +46,9 @@ public class GameController : MonoBehaviour
 
 	protected GameObject field;
 
-	private Toggle audioToggle;
+	Toggle audioToggle;
 
-	void Start()
-	{
+	void Start() {
 		Input.simulateMouseWithTouches = true;
 		mainCamera = Camera.main;
 		audioToggle = GameObject.Find("Audio Toggle").GetComponent<Toggle>();
@@ -60,6 +60,7 @@ public class GameController : MonoBehaviour
 		}
 		hudCanvas = GameObject.Find("Hud Canvas");
 		menuCanvas = GameObject.Find("Menu Canvas");
+		pauseCanvas = GameObject.Find("Pause Canvas");
 		mainCameraInitialPosition = mainCamera.transform.position;
 		mainCameraInitialRotation = mainCamera.transform.rotation;
 		fieldPrototype = (GameObject)Resources.Load("Prefabs/Field");
@@ -70,37 +71,38 @@ public class GameController : MonoBehaviour
 		maxZ = InGameData.maxZ;
 		minesNum = InGameData.minesNum;
 
-		AppearanceManager.Init();
+		ResourcesManager.Init();
 
 		Init();
 	}
 
-	void Update()
-	{
-		if (Input.GetMouseButtonDown(0)) {
-			Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-			RaycastHit hitInfo;
-			if (Physics.Raycast(ray, out hitInfo, 9999f, ~(1 << LayerMask.NameToLayer("TextBlock") | 1 << LayerMask.NameToLayer("MinedBlock")))) {
-				if (hitInfo.collider.name.Contains("Block")) {
-					BlockController block = hitInfo.collider.transform.GetComponent<BlockController>();
-					if (block.GetState() == BlockState.HIDDEN) {
-						block.SetState(BlockState.MINED);
+	void Update() {
+		if (!paused) {
+			if (Input.GetMouseButtonDown(0)) {
+				Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+				RaycastHit hitInfo;
+				if (Physics.Raycast(ray, out hitInfo, 9999f, ~(1 << LayerMask.NameToLayer("TextBlock") | 1 << LayerMask.NameToLayer("MinedBlock")))) {
+					if (hitInfo.collider.name.Contains("Block")) {
+						BlockController block = hitInfo.collider.transform.GetComponent<BlockController>();
+						if (block.GetState() == BlockState.HIDDEN) {
+							block.SetState(BlockState.MINED);
+						}
 					}
 				}
-			}
-		} else if (Input.GetMouseButtonDown(1)) {
-			Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-			RaycastHit hitInfo;
-			//~(1 << LayerMask.NameToLayer ("CubeBlock"))
-			if (Physics.Raycast(ray, out hitInfo, 9999f, ~(1 << LayerMask.NameToLayer("MinedBlock")))) {
-				if (hitInfo.collider.name.Contains("Block")) {
-					BlockController block = hitInfo.collider.transform.GetComponent<BlockController>();
-					if (block.GetState() == BlockState.HIDDEN) {
-						block.SetState(BlockState.FLAGGED);
-					} else if (block.GetState() == BlockState.FLAGGED) {
-						block.SetState(BlockState.MARKED);
-					} else if (block.GetState() == BlockState.MARKED) {
-						block.SetState(BlockState.HIDDEN);
+			} else if (Input.GetMouseButtonDown(1)) {
+				Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+				RaycastHit hitInfo;
+				//~(1 << LayerMask.NameToLayer ("CubeBlock"))
+				if (Physics.Raycast(ray, out hitInfo, 9999f, ~(1 << LayerMask.NameToLayer("MinedBlock")))) {
+					if (hitInfo.collider.name.Contains("Block")) {
+						BlockController block = hitInfo.collider.transform.GetComponent<BlockController>();
+						if (block.GetState() == BlockState.HIDDEN) {
+							block.SetState(BlockState.FLAGGED);
+						} else if (block.GetState() == BlockState.FLAGGED) {
+							block.SetState(BlockState.MARKED);
+						} else if (block.GetState() == BlockState.MARKED) {
+							block.SetState(BlockState.HIDDEN);
+						}
 					}
 				}
 			}
@@ -126,23 +128,29 @@ public class GameController : MonoBehaviour
 		} else if (Input.GetKey("r")) {
 			ResetCameraTransform();
 		} else if (Input.GetKey("p")) {
-			ResetScene();
+			//ResetScene();
+		} else if (Input.GetKey("escape")) {
+			if (!gameOver) {
+				if (!pauseCanvas.activeSelf) {
+					paused = true;
+					ShowMenu("Pause", pauseCanvas, 0f, 1.5f);
+				}
+			}
 		}
 	}
 
-	public virtual void Init()
-	{
+	public virtual void Init() {
 		HideMenu();
 
 		gameOver = false;
+		paused = false;
 
 		GenerateField();
 
 		hudCanvas.GetComponent<HudController>().Init();
 	}
 
-	public void GenerateField()
-	{
+	public void GenerateField() {
 		field = Instantiate(fieldPrototype);
 		field.transform.position = new Vector3(0f, 0f, 0f);
 
@@ -228,36 +236,31 @@ public class GameController : MonoBehaviour
 		minesLeft = minesNum;
 	}
 
-	public void RotateCameraUpwards()
-	{
+	public void RotateCameraUpwards() {
 		mainCamera.transform.RotateAround(field.transform.position, mainCamera.transform.right, Time.deltaTime * fieldRotateSpeed);
 		mainCameraLastPosition = mainCamera.transform.position;
 		mainCameraLastRotation = mainCamera.transform.rotation;
 	}
 
-	public void RotateCameraDownwards()
-	{
+	public void RotateCameraDownwards() {
 		mainCamera.transform.RotateAround(field.transform.position, -mainCamera.transform.right, Time.deltaTime * fieldRotateSpeed);
 		mainCameraLastPosition = mainCamera.transform.position;
 		mainCameraLastRotation = mainCamera.transform.rotation;
 	}
 
-	public void RotateCameraLeftwards()
-	{
+	public void RotateCameraLeftwards() {
 		mainCamera.transform.RotateAround(field.transform.position, mainCamera.transform.up, Time.deltaTime * fieldRotateSpeed);
 		mainCameraLastPosition = mainCamera.transform.position;
 		mainCameraLastRotation = mainCamera.transform.rotation;
 	}
 
-	public void RotateCameraRightwards()
-	{
+	public void RotateCameraRightwards() {
 		mainCamera.transform.RotateAround(field.transform.position, -mainCamera.transform.up, Time.deltaTime * fieldRotateSpeed);
 		mainCameraLastPosition = mainCamera.transform.position;
 		mainCameraLastRotation = mainCamera.transform.rotation;
 	}
 
-	public void MoveCameraCloser()
-	{
+	public void MoveCameraCloser() {
 		Vector3 position = mainCamera.transform.position;
 		position += (transform.position - position).normalized * cameraMoveSpeed * Time.deltaTime;
 		if ((position - transform.position).sqrMagnitude < minDistance * minDistance) {
@@ -268,8 +271,7 @@ public class GameController : MonoBehaviour
 		mainCameraLastPosition = position;
 	}
 
-	public void MoveCameraFurther()
-	{
+	public void MoveCameraFurther() {
 		Vector3 position = mainCamera.transform.position;
 		position -= (transform.position - position).normalized * cameraMoveSpeed * Time.deltaTime;
 		if ((position - transform.position).sqrMagnitude > maxDistance * maxDistance) {
@@ -280,14 +282,12 @@ public class GameController : MonoBehaviour
 		mainCameraLastPosition = position;
 	}
 
-	public void ResetCameraTransform()
-	{
+	public void ResetCameraTransform() {
 		mainCamera.transform.rotation = mainCameraInitialRotation;
 		mainCamera.transform.position = mainCameraInitialPosition;
 	}
 
-	public void ResetScene()
-	{
+	public void ResetScene() {
 		StopAllCoroutines();
 		/*
 		foreach (BlockController block in blocks) {
@@ -302,13 +302,15 @@ public class GameController : MonoBehaviour
 		Init();
 	}
 
-	public bool IsGameOver()
-	{
+	public bool IsGameOver() {
 		return gameOver;
 	}
 
-	public IEnumerator ExeShakeTask(float distance)
-	{
+	public bool IsPaused() {
+		return paused;
+	}
+
+	public IEnumerator ExeShakeTask(float distance) {
 		yield return new WaitForSeconds(cameraShakeDelay);
 		mainCameraLastPosition = mainCamera.transform.position;
 		mainCameraLastRotation = mainCamera.transform.rotation;
@@ -329,8 +331,7 @@ public class GameController : MonoBehaviour
 		mainCamera.transform.rotation = mainCameraLastRotation;
 	}
 
-	public virtual void OnBlockMined(BlockController block)
-	{
+	public virtual void OnBlockMined(BlockController block) {
 		if (block.IsMine()) {
 			OnLose();
 		} else {
@@ -343,8 +344,7 @@ public class GameController : MonoBehaviour
 		}
 	}
 
-	public virtual void OnBlockFlagged(BlockController block)
-	{
+	public virtual void OnBlockFlagged(BlockController block) {
 		if (gameOver) {
 			return;
 		}
@@ -352,8 +352,7 @@ public class GameController : MonoBehaviour
 		hudCanvas.GetComponent<HudController>().OnMinesLeftChanged(minesLeft);
 	}
 
-	public virtual void OnBlockDeflagged(BlockController block)
-	{
+	public virtual void OnBlockDeflagged(BlockController block) {
 		if (gameOver) {
 			return;
 		}
@@ -361,19 +360,16 @@ public class GameController : MonoBehaviour
 		hudCanvas.GetComponent<HudController>().OnMinesLeftChanged(minesLeft);
 	}
 
-	public void BackToMenu()
-	{
+	public void BackToMenu() {
 		SceneManager.LoadScene("MenuScene");
 	}
 
-	public void NewGame()
-	{
+	public void NewGame() {
 		InGameData.menuSceneIntent = InGameData.MenuSceneIntent.Play;
 		BackToMenu();
 	}
 
-	public void QuitGame()
-	{
+	public void QuitGame() {
 #if UNITY_EDITOR
 		UnityEditor.EditorApplication.isPlaying = false;
 #else
@@ -381,8 +377,7 @@ public class GameController : MonoBehaviour
 #endif
 	}
 
-	public void OnAudioToggleChanged()
-	{
+	public void OnAudioToggleChanged() {
 		InGameData.audioEnabled = !audioToggle.isOn;
 		if (audioToggle.isOn) {
 			AudioListener.volume = 1;
@@ -391,21 +386,17 @@ public class GameController : MonoBehaviour
 		}
 	}
 
-	public void ShowMenu(string title)
-	{
-		if (!menuCanvas.activeSelf) {
-			menuCanvas.SetActive(true);
+	public void ShowMenu(string title, GameObject menu, float delay, float duration) {
+		if (!menu.activeSelf) {
+			menu.SetActive(true);
 		}
-		StartCoroutine(ExeShowMenuTask());
+		StartCoroutine(ExeShowMenuTask(menu, delay, duration));
 		menuCanvas.transform.Find("Title Text").GetComponent<Text>().text = title;
 	}
 
-	private IEnumerator ExeShowMenuTask()
-	{
-		CanvasGroup canvasGroup = menuCanvas.GetComponent<CanvasGroup>();
+	IEnumerator ExeShowMenuTask(GameObject menu, float delay, float duration) {
+		CanvasGroup canvasGroup = menu.GetComponent<CanvasGroup>();
 		canvasGroup.alpha = 0;
-		float delay = 1.5f;
-		float duration = 1.5f;
 		yield return new WaitForSeconds(delay);
 		while (canvasGroup.alpha < 1) {
 			float increase = Time.deltaTime * 1 / duration;
@@ -419,38 +410,39 @@ public class GameController : MonoBehaviour
 		canvasGroup.interactable = true;
 	}
 
-	public void HideMenu()
-	{
+	public void HideMenu() {
+		paused = false;
 		if (menuCanvas.activeSelf) {
 			menuCanvas.SetActive(false);
 		}
 		menuCanvas.GetComponent<CanvasGroup>().interactable = false;
+		if (pauseCanvas.activeSelf) {
+			pauseCanvas.SetActive(false);
+		}
+		pauseCanvas.GetComponent<CanvasGroup>().interactable = false;
 	}
 
-	private void OnWin()
-	{
+	void OnWin() {
 		if (gameOver) {
 			return;
 		}
 
 		gameOver = true;
 
-		ShowMenu("You Win !");
+		ShowMenu("You Win !", menuCanvas, 1.5f, 1.5f);
 	}
 
-	private void OnLose()
-	{
+	void OnLose() {
 		if (gameOver) {
 			return;
 		}
 
 		gameOver = true;
 
-		ShowMenu("You Lose !");
+		ShowMenu("You Lose !", menuCanvas, 1.5f, 1.5f);
 	}
 
-	private void OnGiveUp()
-	{
+	void OnGiveUp() {
 		if (gameOver) {
 			return;
 		}

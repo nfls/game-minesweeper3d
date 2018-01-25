@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BackgroundController : GameController
-{
-	void Start()
-	{
+public class BackgroundController : GameController {
+	void Start() {
 		Input.simulateMouseWithTouches = true;
 		mainCamera = Camera.main;
 		mainCameraInitialPosition = mainCamera.transform.position;
@@ -13,13 +11,12 @@ public class BackgroundController : GameController
 		fieldPrototype = (GameObject)Resources.Load("Prefabs/Field");
 		blockPrototype = (GameObject)Resources.Load("Prefabs/Block");
 
-		AppearanceManager.Init();
+		ResourcesManager.Init();
 
 		Init();
 	}
 
-	void Update()
-	{
+	void Update() {
 		if (Input.GetKey("j")) {
 			MoveCameraCloser();
 		} else if (Input.GetKey("k")) {
@@ -29,8 +26,7 @@ public class BackgroundController : GameController
 		}
 	}
 
-	public override void Init()
-	{
+	public override void Init() {
 		gameOver = false;
 
 		maxX = UnityEngine.Random.Range(6, 11);
@@ -46,8 +42,7 @@ public class BackgroundController : GameController
 		StartCoroutine(AutoOperate());
 	}
 
-	public override void OnBlockMined(BlockController block)
-	{
+	public override void OnBlockMined(BlockController block) {
 		if (block.IsMine()) {
 			StartCoroutine(OnGameOver());
 		} else {
@@ -60,14 +55,12 @@ public class BackgroundController : GameController
 		}
 	}
 
-	private IEnumerator OnGameOver()
-	{
+	private IEnumerator OnGameOver() {
 		yield return new WaitForSeconds(UnityEngine.Random.Range(20f, 30f));
 		ResetScene();
 	}
 
-	private IEnumerator AutoOperate()
-	{
+	private IEnumerator AutoOperate() {
 		yield return new WaitForSeconds(UnityEngine.Random.Range(0f, 1.5f));
 		int r;
 		if (gameOver) {
@@ -82,8 +75,7 @@ public class BackgroundController : GameController
 		}
 	}
 
-	private IEnumerator AutoRotate()
-	{
+	private IEnumerator AutoRotate() {
 		float duration = UnityEngine.Random.Range(0.5f, 3f);
 		int direction = UnityEngine.Random.Range(0, 4);
 		while (duration > 0) {
@@ -107,8 +99,7 @@ public class BackgroundController : GameController
 		StartCoroutine(AutoOperate());
 	}
 
-	private IEnumerator AutoMove()
-	{
+	private IEnumerator AutoMove() {
 		float duration = UnityEngine.Random.Range(0.5f, 2f);
 		int direction = UnityEngine.Random.Range(0, 2);
 		Vector3 position = mainCamera.transform.position;
@@ -127,8 +118,7 @@ public class BackgroundController : GameController
 		StartCoroutine(AutoOperate());
 	}
 
-	private void AutoClick()
-	{
+	private void AutoClick() {
 		if (gameOver) {
 			int r = UnityEngine.Random.Range(0, safeBlocks.Count);
 			if (safeBlocks[r].GetState() == BlockState.HIDDEN) {
@@ -175,23 +165,19 @@ public class BackgroundController : GameController
 		StartCoroutine(AutoOperate());
 	}
 
-	public override void OnBlockFlagged(BlockController block)
-	{
+	public override void OnBlockFlagged(BlockController block) {
 		return;
 	}
 
-	public override void OnBlockDeflagged(BlockController block)
-	{
+	public override void OnBlockDeflagged(BlockController block) {
 		return;
 	}
 
-	public void OnEnabled()
-	{
+	public void OnEnabled() {
 		Init();
 	}
 
-	public void OnDisabled()
-	{
+	public void OnDisabled() {
 		StopAllCoroutines();
 		/*
 				foreach (BlockController block in blocks) {

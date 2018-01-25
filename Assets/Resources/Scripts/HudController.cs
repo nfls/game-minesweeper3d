@@ -3,19 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HudController : MonoBehaviour
-{
-	private GameController game;
-	private Text text1;
-	private Text text2;
-	private Text text3;
-	private Text text4;
-	private Text text5;
+public class HudController : MonoBehaviour {
+	GameController game;
+	Text text1;
+	Text text2;
+	Text text3;
+	Text text4;
+	Text text5;
 
-	private float timePast;
+	float timePast;
 
-	void Start()
-	{
+	void Start() {
 		game = GameObject.FindWithTag("GameController").GetComponent<GameController>();
 		text1 = transform.Find("Text 1").GetComponent<Text>();
 		text2 = transform.Find("Text 2").GetComponent<Text>();
@@ -24,9 +22,8 @@ public class HudController : MonoBehaviour
 		text5 = transform.Find("Text 5").GetComponent<Text>();
 	}
 
-	void Update()
-	{
-		if (!game.IsGameOver()) {
+	void Update() {
+		if (!game.IsGameOver() && !game.IsPaused()) {
 			timePast += Time.deltaTime;
 			string text = text5.text;
 			text = text.Substring(0, text.IndexOf("=") + 1);
@@ -35,8 +32,7 @@ public class HudController : MonoBehaviour
 		}
 	}
 
-	public void Init()
-	{
+	public void Init() {
 		timePast = 0;
 		string text = text1.text;
 		text = text.Substring(0, text.IndexOf("=") + 1);
@@ -59,8 +55,7 @@ public class HudController : MonoBehaviour
 		text4.text = text;
 	}
 
-	public void OnMinesLeftChanged(int minesLeft)
-	{
+	public void OnMinesLeftChanged(int minesLeft) {
 		string text = text4.text;
 		text = text.Substring(0, text.IndexOf("=") + 1);
 		text += " " + minesLeft;

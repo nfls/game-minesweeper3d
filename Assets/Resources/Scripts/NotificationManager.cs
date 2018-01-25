@@ -4,8 +4,7 @@ using UnityEngine;
 using System;
 using UnityEngine.UI;
 
-public class NotificationManager : MonoBehaviour
-{
+public class NotificationManager : MonoBehaviour {
 	public static float Duration_Default = 3f;
 	public static float Duration_Short = 1f;
 	public static float Duration_Long = 5f;
@@ -14,25 +13,22 @@ public class NotificationManager : MonoBehaviour
 
 	public static string notificationIconRootDirectory = "Textures/";
 
-	private Queue<Notification> notifications;
-	private Sprite[] icons;
+	Queue<Notification> notifications;
+	Sprite[] icons;
 
-	private GameObject notificationCanvas;
-	private GameObject notificationBarA;
-	private GameObject notificationBarB;
+	GameObject notificationCanvas;
+	GameObject notificationBarA;
+	GameObject notificationBarB;
 
-	void Start()
-	{
-
-	}
-
-	void Update()
-	{
+	void Start() {
 
 	}
 
-	public void Init()
-	{
+	void Update() {
+
+	}
+
+	public void Init() {
 		StopAllCoroutines();
 		notifications = new Queue<Notification>();
 		if (notificationBarA) {
@@ -56,16 +52,14 @@ public class NotificationManager : MonoBehaviour
 		}
 	}
 
-	private void AddNotification(Notification notification)
-	{
+	void AddNotification(Notification notification) {
 		notifications.Enqueue(notification);
 		if (notifications.Count == 1) {
 			StartCoroutine(DisplayNotification(notification));
 		}
 	}
 
-	private IEnumerator DisplayNotification(Notification notification)
-	{
+	IEnumerator DisplayNotification(Notification notification) {
 		GameObject notificationBar;
 		notificationBar = notificationBarA;
 		LoadUpNotificationBar(notificationBar, notification);
@@ -93,21 +87,18 @@ public class NotificationManager : MonoBehaviour
 		}
 	}
 
-	private void LoadUpNotificationBar(GameObject notificationBar, Notification notification)
-	{
+	void LoadUpNotificationBar(GameObject notificationBar, Notification notification) {
 		notificationBar.SetActive(true);
 		notificationBar.transform.Find("Icon Panel/Icon").GetComponent<Image>().sprite = icons[(int)notification.type];
 		notificationBar.transform.Find("Content Panel/Title Text").GetComponent<Text>().text = notification.title;
 		notificationBar.transform.Find("Content Panel/Content Text").GetComponent<Text>().text = notification.content;
 	}
 
-	public void NewNotification(NotificationType type, string content)
-	{
+	public void NewNotification(NotificationType type, string content) {
 		NewNotification(type, content, Duration_Default);
 	}
 
-	public void NewNotification(NotificationType type, string content, float duration)
-	{
+	public void NewNotification(NotificationType type, string content, float duration) {
 		Notification notification = new Notification();
 		notification.type = type;
 		switch (type) {
@@ -115,8 +106,8 @@ public class NotificationManager : MonoBehaviour
 					notification.title = "Achievenment Unlocked !";
 					break;
 				}
-			case NotificationType.GainSatScore: {
-					notification.title = "Gain Sat Score !";
+			case NotificationType.GainCasHours: {
+					notification.title = "Gain Cas Hours !";
 					break;
 				}
 			case NotificationType.GainExp: {
@@ -139,19 +130,17 @@ public class NotificationManager : MonoBehaviour
 
 
 
-	private class Notification
-	{
+	class Notification {
 		public NotificationType type;
 		public string title;
 		public string content;
 		public float duration;
 	}
 
-	public enum NotificationType
-	{
+	public enum NotificationType {
 		Achievement = 0,
 		LevelUp = 1,
-		GainSatScore = 2,
+		GainCasHours = 2,
 		GainExp = 3,
 		Warning = 4,
 		Tip = 5
