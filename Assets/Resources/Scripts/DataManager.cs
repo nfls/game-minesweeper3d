@@ -55,9 +55,7 @@ public class DataManager {
 	}
 
 	static void GenerateUserDataFile() {
-		UserManager.name = "Guest";
-		UserManager.level = 0;
-		UserManager.exp = 0;
+		UserManager.InitData();
 		SaveUserData();
 	}
 

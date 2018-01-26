@@ -5748,9 +5748,9 @@ MonoBehaviour:
   minDistance: 1
   maxDistance: 100
   maxX: 10
-  maxY: 10
-  maxZ: 9
-  minesNum: 210
+  maxY: 6
+  maxZ: 10
+  minesNum: 240
   cameraShakeDelay: 0
   cameraShakeDuration: 1.5
   cameraShakePower: 2
