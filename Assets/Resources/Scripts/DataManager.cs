@@ -13,7 +13,7 @@ public class DataManager {
 	public static string USER_DATA_PATH = DATA_STORAGE_ROOT + "/uData";
 	public static string ACHIEVEMENT_DATA_PATH = DATA_STORAGE_ROOT + "/aData";
 
-	static byte[] KEY_ARRAY = UTF8Encoding.UTF8.GetBytes("fucknflsfucknflsfucknflsfucknfls");
+	static byte[] KEY_ARRAY = Encoding.UTF8.GetBytes("fucknflsfucknflsfucknflsfucknfls");
 	static RijndaelManaged rij;
 	static ICryptoTransform encryptor;
 	static ICryptoTransform decryptor;

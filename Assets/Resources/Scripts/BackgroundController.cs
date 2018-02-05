@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BackgroundController : GameController {
@@ -8,10 +7,9 @@ public class BackgroundController : GameController {
 		mainCamera = Camera.main;
 		mainCameraInitialPosition = mainCamera.transform.position;
 		mainCameraInitialRotation = mainCamera.transform.rotation;
-		fieldPrototype = (GameObject)Resources.Load("Prefabs/Field");
-		blockPrototype = (GameObject)Resources.Load("Prefabs/Block");
 
-		ResourcesManager.Init();
+		fieldPrototype = (GameObject)Resources.Load("Prefabs/Field");
+		blockPrototype = ResourcesManager.GetPrefabByName("Block");
 
 		Init();
 	}
@@ -35,7 +33,7 @@ public class BackgroundController : GameController {
 
 		int blocksNum = maxX * maxY * maxZ;
 
-		minesNum = UnityEngine.Random.Range((int)(blocksNum * 1 / 10), (int)(blocksNum * 5 / 10));
+		minesNum = UnityEngine.Random.Range((blocksNum * 1 / 10), (blocksNum * 5 / 10));
 
 		GenerateField();
 
@@ -55,12 +53,12 @@ public class BackgroundController : GameController {
 		}
 	}
 
-	private IEnumerator OnGameOver() {
+	IEnumerator OnGameOver() {
 		yield return new WaitForSeconds(UnityEngine.Random.Range(20f, 30f));
 		ResetScene();
 	}
 
-	private IEnumerator AutoOperate() {
+	IEnumerator AutoOperate() {
 		yield return new WaitForSeconds(UnityEngine.Random.Range(0f, 1.5f));
 		int r;
 		if (gameOver) {
@@ -75,7 +73,7 @@ public class BackgroundController : GameController {
 		}
 	}
 
-	private IEnumerator AutoRotate() {
+	IEnumerator AutoRotate() {
 		float duration = UnityEngine.Random.Range(0.5f, 3f);
 		int direction = UnityEngine.Random.Range(0, 4);
 		while (duration > 0) {
@@ -99,7 +97,7 @@ public class BackgroundController : GameController {
 		StartCoroutine(AutoOperate());
 	}
 
-	private IEnumerator AutoMove() {
+	IEnumerator AutoMove() {
 		float duration = UnityEngine.Random.Range(0.5f, 2f);
 		int direction = UnityEngine.Random.Range(0, 2);
 		Vector3 position = mainCamera.transform.position;
@@ -118,7 +116,7 @@ public class BackgroundController : GameController {
 		StartCoroutine(AutoOperate());
 	}
 
-	private void AutoClick() {
+	void AutoClick() {
 		if (gameOver) {
 			int r = UnityEngine.Random.Range(0, safeBlocks.Count);
 			if (safeBlocks[r].GetState() == BlockState.HIDDEN) {

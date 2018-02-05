@@ -17,7 +17,7 @@ public class GameController : MonoBehaviour {
 
 	public static Camera mainCamera;
 
-	public float cameraShakeDelay = 0f;
+	public float cameraShakeDelay;
 	public float cameraShakeDuration = 1.5f;
 	public float cameraShakePower = 2f;
 	public float cameraShakeAngle = 15f;
@@ -51,6 +51,8 @@ public class GameController : MonoBehaviour {
 	void Start() {
 		Input.simulateMouseWithTouches = true;
 		mainCamera = Camera.main;
+		mainCameraInitialPosition = mainCamera.transform.position;
+		mainCameraInitialRotation = mainCamera.transform.rotation;
 		audioToggle = GameObject.Find("Audio Toggle").GetComponent<Toggle>();
 		audioToggle.isOn = InGameData.audioEnabled;
 		if (audioToggle.isOn) {
@@ -58,20 +60,17 @@ public class GameController : MonoBehaviour {
 		} else {
 			AudioListener.volume = 0;
 		}
+
 		hudCanvas = GameObject.Find("Hud Canvas");
 		menuCanvas = GameObject.Find("Menu Canvas");
 		pauseCanvas = GameObject.Find("Pause Canvas");
-		mainCameraInitialPosition = mainCamera.transform.position;
-		mainCameraInitialRotation = mainCamera.transform.rotation;
 		fieldPrototype = (GameObject)Resources.Load("Prefabs/Field");
-		blockPrototype = (GameObject)Resources.Load("Prefabs/Block");
+		blockPrototype = ResourcesManager.GetPrefabByName("Block");
 
 		maxX = InGameData.maxX;
 		maxY = InGameData.maxY;
 		maxZ = InGameData.maxZ;
 		minesNum = InGameData.minesNum;
-
-		ResourcesManager.Init();
 
 		Init();
 	}

@@ -8,20 +8,11 @@ public class MenuSceneController : MonoBehaviour {
 	public GameObject background;
 	public GameObject mainMenu;
 
-	NotificationManager notificationManager;
-
 	Stack<GameObject> previousMenus;
 
 	Toggle audioToggle;
 
 	void Start() {
-		//background = GameObject.Find("Background Controller").gameObject;
-		//mainMenuCanvas = GameObject.Find("Main Menu").gameObject;
-		notificationManager = GetComponent<NotificationManager>();
-		notificationManager.Init();
-		InGameData.notificationManager = notificationManager;
-		//InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Achievement, "Coward For the 1st time !", NotificationManager.Duration_Default);
-		//InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Achievement, "Winner For the 1st time !", NotificationManager.Duration_Default);
 		previousMenus = new Stack<GameObject>();
 		previousMenus.Push(mainMenu);
 
@@ -33,6 +24,15 @@ public class MenuSceneController : MonoBehaviour {
 			InGameData.menuSceneIntent = InGameData.MenuSceneIntent.Main;
 		}
 
+		Text versionText = GameObject.Find("Version Text").GetComponent<Text>();
+		versionText.text = "@Version " + InGameData.VersionData.versionNum + " ";
+		versionText.text += "<b><i>" + InGameData.VersionData.versionName + "</i></b> ";
+		if (string.Equals(InGameData.VersionData.versionInfo, "Alpha", System.StringComparison.CurrentCultureIgnoreCase)) {
+			versionText.text += " <color=red>Alpha</color>";
+		} else if (string.Equals(InGameData.VersionData.versionInfo, "Beta", System.StringComparison.CurrentCultureIgnoreCase)) {
+			versionText.text += " <color=cyan>Beta</color>";
+		}
+
 		audioToggle = GameObject.Find("Audio Toggle").GetComponent<Toggle>();
 		audioToggle.isOn = InGameData.audioEnabled;
 		if (audioToggle.isOn) {
@@ -40,8 +40,6 @@ public class MenuSceneController : MonoBehaviour {
 		} else {
 			AudioListener.volume = 0;
 		}
-
-		NetUtils.Init();
 	}
 
 	void Update() {
@@ -66,6 +64,13 @@ public class MenuSceneController : MonoBehaviour {
 		previousMenus.Peek().SetActive(false);
 		previousMenus.Push(subCanvas);
 		subCanvas.SetActive(true);
+		if (subCanvas.name.Equals("Options")) {
+			subCanvas.transform.Find("X Inverse Toggle").GetComponent<Toggle>().isOn = PreferencesManager.xAxisInverse;
+			subCanvas.transform.Find("Y Inverse Toggle").GetComponent<Toggle>().isOn = PreferencesManager.yAxisInverse;
+			subCanvas.transform.Find("Special Effect Toggle").GetComponent<Toggle>().isOn = PreferencesManager.specialEffect;
+			subCanvas.transform.Find("Rotate Speed Slider").GetComponent<Slider>().value = PreferencesManager.fieldRotateSpeed;
+			subCanvas.transform.Find("Move Speed Slider").GetComponent<Slider>().value = PreferencesManager.cameraMoveSpeed;
+		}
 	}
 
 	public void OnQuitButtonClicked() {
@@ -76,7 +81,7 @@ public class MenuSceneController : MonoBehaviour {
 #endif
 	}
 
-	public void OnSliderChanged(GameObject slider) {
+	public void OnCustomSliderChanged(GameObject slider) {
 		int v = (int)slider.GetComponent<Slider>().value;
 		if (slider.name.Contains("Mines")) {
 			InGameData.minesNum = v;
@@ -99,6 +104,21 @@ public class MenuSceneController : MonoBehaviour {
 			mineSlider.maxValue = minesNum;
 		}
 		slider.transform.Find("Num Text").GetComponent<Text>().text = v + "";
+	}
+
+	public void OnOptionsSliderChanged(GameObject slider) {
+		int v = (int)slider.GetComponent<Slider>().value;
+		slider.transform.Find("Num Text").GetComponent<Text>().text = v + "";
+	}
+
+	public void OnOptionsSaveButtonClicked(GameObject subCanvas) {
+		PreferencesManager.xAxisInverse = subCanvas.transform.Find("X Inverse Toggle").GetComponent<Toggle>().isOn;
+		PreferencesManager.yAxisInverse = subCanvas.transform.Find("Y Inverse Toggle").GetComponent<Toggle>().isOn;
+		PreferencesManager.specialEffect = subCanvas.transform.Find("Special Effect Toggle").GetComponent<Toggle>().isOn;
+		PreferencesManager.fieldRotateSpeed = (int)subCanvas.transform.Find("Rotate Speed Slider").GetComponent<Slider>().value;
+		PreferencesManager.cameraMoveSpeed = (int)subCanvas.transform.Find("Move Speed Slider").GetComponent<Slider>().value;
+		PreferencesManager.Save();
+		InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Tip, "Options Saved !", NotificationManager.Duration_Short);
 	}
 
 	public void PlayStandardMode() {

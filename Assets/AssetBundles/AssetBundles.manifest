@@ -1,0 +1,7 @@
+ManifestFileVersion: 0
+CRC: 3763217416
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: hotassets
+      Dependencies: {}

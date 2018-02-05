@@ -39,7 +39,7 @@ public class NotificationManager : MonoBehaviour {
 			Destroy(notificationBarB);
 			notificationBarB = null;
 		}
-		notificationCanvas = GameObject.Find("Notification Canvas");
+		notificationCanvas = GameObject.Find("Notification Manager");
 		notificationBarA = Resources.Load<GameObject>("Prefabs/NotificationBar");
 		notificationBarA = Instantiate(notificationBarA, notificationCanvas.transform);
 		notificationBarB = Instantiate(notificationBarA, notificationCanvas.transform);
@@ -83,7 +83,7 @@ public class NotificationManager : MonoBehaviour {
 		notificationBar.SetActive(false);
 		notifications.Dequeue();
 		if (notifications.Count > 0) {
-			StartCoroutine(DisplayNotification(notifications.Dequeue()));
+			StartCoroutine(DisplayNotification(notifications.Peek()));
 		}
 	}
 

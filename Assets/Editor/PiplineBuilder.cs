@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using LitJson;
 
 public class PiplineBuilder : Editor {
 
@@ -41,5 +42,4 @@ public class PiplineBuilder : Editor {
 		}
 		AssetDatabase.Refresh();
 	}
-
 }
