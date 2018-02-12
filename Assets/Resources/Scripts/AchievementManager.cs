@@ -11,10 +11,10 @@ public class AchievementManager {
 	public static Dictionary<string, bool> achievementFinishedInfos;
 
 	public static void Init() {
-
-	}
-
-	public static void InitData() {
+		achievementTypes = new List<AchievementType>();
+		achievementInfos = new List<AchievementInfo>();
+		achievementProgresses = new Dictionary<string, int>();
+		achievementFinishedInfos = new Dictionary<string, bool>();
 		foreach (var item in achievementTypes) {
 			achievementProgresses[item.ToString()] = 0;
 		}

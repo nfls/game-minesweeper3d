@@ -11,10 +11,10 @@ public class PurchasementManager {
 	public static Dictionary<string, bool> audioPackAvailabilities;
 
 	public static void Init() {
-
-	}
-
-	public static void InitData() {
+		skinPackInfos = new List<SkinPackInfo>();
+		audioPackInfos = new List<AudioPackInfo>();
+		skinPackAvailabilities = new Dictionary<string, bool>();
+		audioPackAvailabilities = new Dictionary<string, bool>();
 		foreach (var item in skinPackInfos) {
 			skinPackAvailabilities[item.name] = false;
 		}

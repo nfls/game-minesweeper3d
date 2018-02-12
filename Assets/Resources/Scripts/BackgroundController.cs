@@ -4,12 +4,15 @@ using UnityEngine;
 public class BackgroundController : GameController {
 	void Start() {
 		Input.simulateMouseWithTouches = true;
+		fieldRotateSpeed = PreferencesManager.fieldRotateSpeed;
+		cameraMoveSpeed = PreferencesManager.cameraMoveSpeed;
 		mainCamera = Camera.main;
 		mainCameraInitialPosition = mainCamera.transform.position;
 		mainCameraInitialRotation = mainCamera.transform.rotation;
 
 		fieldPrototype = (GameObject)Resources.Load("Prefabs/Field");
 		blockPrototype = ResourcesManager.GetPrefabByName("Block");
+		//blockPrototype = (GameObject)Resources.Load("Prefabs/Block");
 
 		Init();
 	}

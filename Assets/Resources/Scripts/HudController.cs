@@ -11,7 +11,7 @@ public class HudController : MonoBehaviour {
 	Text text4;
 	Text text5;
 
-	float timePast;
+	public static float timePast;
 
 	void Start() {
 		game = GameObject.FindWithTag("GameController").GetComponent<GameController>();

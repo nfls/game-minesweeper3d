@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 2878743835
+CRC: 4229693581
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: f2449a55620e72664bbe9c84676b5e24
+    Hash: 5405270f456b062ec60965a61430de97
   TypeTreeHash:
     serializedVersion: 2
-    Hash: ed861f283523238679145243d2c6e9b2
+    Hash: 3f1ceda634aa5eeaf8a1b94ae8f86a75
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -42,12 +42,43 @@ ClassTypes:
 - Class: 128
   Script: {instanceID: 0}
 Assets:
+- Assets/Bundled Resources/Audio@Wc@Mark.mp3
+- Assets/Bundled Resources/Audio@Jrf@Opening.mp3
+- Assets/Bundled Resources/Audio@Wc@Explosion.mp3
+- Assets/Bundled Resources/Audio@Xzd@Mark.mp3
+- Assets/Bundled Resources/Audio@Jrf@Flag.mp3
+- Assets/Bundled Resources/Audio@Kungfu@Explosion.mp3
+- Assets/Bundled Resources/Audio@Hzk@Safe.mp3
 - Assets/Bundled Resources/Prefab@Block.prefab
+- Assets/Bundled Resources/Document@StdGameConfig.txt
 - Assets/Bundled Resources/Material@Text@CourierNew.mat
+- Assets/Bundled Resources/Audio@Kungfu@Opening.mp3
 - Assets/Bundled Resources/Texture@BlockSurface@Default.png
+- Assets/Bundled Resources/Audio@Jrf@Safe.mp3
+- Assets/Bundled Resources/Audio@Wc@Safe.mp3
+- Assets/Bundled Resources/Audio@Kungfu@Safe.mp3
+- Assets/Bundled Resources/Audio@Hzk@Mark.mp3
+- Assets/Bundled Resources/Audio@Hzk@Opening.mp3
+- Assets/Bundled Resources/Audio@Xzd@Opening.mp3
+- Assets/Bundled Resources/Audio@Hzk@Explosion.mp3
 - Assets/Bundled Resources/Material@Text@Copperplate.mat
+- Assets/Bundled Resources/Audio@Xzd@Safe.mp3
 - Assets/Bundled Resources/Document@VersionData.txt
+- Assets/Bundled Resources/Audio@Kungfu@Mark.mp3
+- Assets/Bundled Resources/Audio@Yq@Opening.mp3
+- Assets/Bundled Resources/Audio@Yq@Safe.mp3
+- Assets/Bundled Resources/Audio@Jrf@Explosion.mp3
+- Assets/Bundled Resources/Audio@Hzk@Flag.mp3
 - Assets/Bundled Resources/Document@ColorStyles.txt
+- Assets/Bundled Resources/Audio@Yq@Flag.mp3
+- Assets/Bundled Resources/Audio@Yq@Explosion.mp3
+- Assets/Bundled Resources/Audio@Jrf@Mark.mp3
+- Assets/Bundled Resources/Audio@Kungfu@Flag.mp3
+- Assets/Bundled Resources/Audio@Wc@Flag.mp3
+- Assets/Bundled Resources/Audio@Wc@Opening.mp3
+- Assets/Bundled Resources/Audio@Xzd@Flag.mp3
+- Assets/Bundled Resources/Audio@Yq@Mark.mp3
 - Assets/Bundled Resources/Material@BlockSurface@Default.mat
+- Assets/Bundled Resources/Audio@Xzd@Explosion.mp3
 - Assets/Bundled Resources/Material@Text@Futura.mat
 Dependencies: []

@@ -2,11 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 using LitJson;
-using System.IO;
 using System;
-using System.Linq;
+using System.Runtime.CompilerServices;
 
 public class ResourcesManager : MonoBehaviour {
+	public static readonly int OPENING_AUDIO = 0;
+	public static readonly int SAFE_AUDIO = 1;
+	public static readonly int FLAG_AUDIO = 2;
+	public static readonly int MARK_AUDIO = 3;
+	public static readonly int EXPLOSION_AUDIO = 4;
+
 	static BlockSurfaceStyle blockSurfaceStyle;
 	static NumFont textFont;
 	static FontStyle fontStyle;
@@ -17,6 +22,8 @@ public class ResourcesManager : MonoBehaviour {
 	static Font font;
 	static Color[] textColors;
 	static Color backgroundColor;
+	static string currentSkinPack = "Default";
+	static string currentAudioPack = "Hzk";
 
 	public static List<GameObject> prefabs;
 	public static List<TextAsset> documents;
@@ -25,9 +32,12 @@ public class ResourcesManager : MonoBehaviour {
 	public static List<Sprite> sprites;
 	public static List<Material> materials;
 
+	static AudioClip[] audioClips;
+
 	public static void Init() {
 		LoadUpAssets();
 		SetAppearance();
+		LoadUpConfig();
 	}
 
 	public static void LoadUpAssets() {
@@ -70,11 +80,13 @@ public class ResourcesManager : MonoBehaviour {
 		materials = new List<Material>();
 
 		LoadUpHotAssets();
+
+		System.GC.Collect();
 	}
 
 	public static void LoadUpHotAssets() {
-		string dir = Application.dataPath + "/AssetBundles/hotassets";
-		AssetBundle hotassets = AssetBundle.LoadFromFile(dir, 0);
+		//string dir = Application.dataPath + "/AssetBundles/hotassets";
+		AssetBundle hotassets = AssetBundle.LoadFromFile(DataManager.HOT_ASSETS_PATH);
 
 		string[] names = hotassets.GetAllAssetNames();
 
@@ -96,18 +108,24 @@ public class ResourcesManager : MonoBehaviour {
 			}
 		}
 
-		hotassets.Unload(false);
+		//hotassets.Unload(false);
+	}
+
+	public static void LoadUpConfig() {
+		JsonData json = JsonMapper.ToObject(DataManager.Decrypt(GetDocumentByName("StdGameConfig").text));
+		InGameData.sMaxX = (int)json["sMaxX"];
+		InGameData.sMaxY = (int)json["sMaxY"];
+		InGameData.sMaxZ = (int)json["sMaxZ"];
+		InGameData.sMinesNum = (int)json["sMinesNum"];
 	}
 
 	public static void SetAppearance() {
-		SetBlockSurfaceStyle(BlockSurfaceStyle.Default);
-		SetTextFont(NumFont.Futura);
-		SetFontStyle(FontStyle.Normal);
-		SetTextColorSet(NumColorSet.Default);
+		SetAppearance("Default", "Hzk", NumFont.Futura, FontStyle.Normal, NumColorSet.Default);
 	}
 
-	public static void SetAppearance(BlockSurfaceStyle blockSurfaceStyle, NumFont textFont, FontStyle textStyle, NumColorSet textColorSet) {
-		SetBlockSurfaceStyle(blockSurfaceStyle);
+	public static void SetAppearance(string currentSkinPack, string currentAudioPack, NumFont textFont, FontStyle textStyle, NumColorSet textColorSet) {
+		SetCurrentSkinPack(currentSkinPack);
+		SetCurrentAudioPack(currentAudioPack);
 		SetTextFont(textFont);
 		SetFontStyle(textStyle);
 		SetTextColorSet(textColorSet);
@@ -116,6 +134,11 @@ public class ResourcesManager : MonoBehaviour {
 	public static void SetBlockSurfaceStyle(BlockSurfaceStyle style) {
 		blockSurfaceStyle = style;
 		LoadBlockSurfaceStyle();
+	}
+
+	public static void SetCurrentSkinPack(string currentSkinPack) {
+		ResourcesManager.currentSkinPack = currentSkinPack;
+		LoadSkinPack();
 	}
 
 	public static void SetTextFont(NumFont font) {
@@ -132,8 +155,17 @@ public class ResourcesManager : MonoBehaviour {
 		LoadTextColorSet();
 	}
 
+	public static void SetCurrentAudioPack(string currentAudioPack) {
+		ResourcesManager.currentAudioPack = currentAudioPack;
+		LoadAudioPack();
+	}
+
 	public static Material GetBlockSurfaceMaterial() {
 		return blockSurfaceMaterial;
+	}
+
+	public static AudioClip GetAudioClip(int type) {
+		return audioClips[type];
 	}
 
 	public static Material GetTextMaterial() {
@@ -173,6 +205,10 @@ public class ResourcesManager : MonoBehaviour {
 		blockSurfaceMaterial = (Material)Resources.Load("Materials/" + blockSurfaceStyle.ToString() + "BlockSurfaceMaterial");
 	}
 
+	public static void LoadSkinPack() {
+		blockSurfaceMaterial = GetMaterialByName("BlockSurface@" + currentSkinPack);
+	}
+
 	public static void LoadTextFont() {
 		font = (Font)Resources.Load("Fonts/" + textFont.ToString());
 		textMaterial = (Material)Resources.Load("Materials/" + textFont.ToString() + "TextMaterial");
@@ -181,16 +217,28 @@ public class ResourcesManager : MonoBehaviour {
 	public static void LoadTextColorSet() {
 		textColors = new Color[29];
 		JsonData styleArray = JsonMapper.ToObject(GetDocumentByName("ColorStyles").text);
+		//JsonData styleArray = JsonMapper.ToObject(Resources.Load<TextAsset>("Documents/ColorStyles").text);
 		JsonData defaultColorStyle = styleArray[0];
 		JsonData colorArray = defaultColorStyle["colors"];
 
 		for (int i = 0; i < textColors.Length; i++) {
-			int r = (int)colorArray[i]["r"];
-			int g = (int)colorArray[i]["g"];
-			int b = (int)colorArray[i]["b"];
-			int a = (int)colorArray[i]["a"];
-			textColors[i] = new Color(r, g, b, a);
+			float r = (int)colorArray[i]["r"];
+			float g = (int)colorArray[i]["g"];
+			float b = (int)colorArray[i]["b"];
+			float a = (int)colorArray[i]["a"];
+			textColors[i] = new Color(r / 255, g / 255, b / 255, a / 255);
 		}
+	}
+
+	public static void LoadAudioPack() {
+		/*
+		if (audioClips != null) {
+			foreach (var ac in audioClips) {
+				Destroy(ac);
+			}
+		}
+		*/
+		audioClips = GetAudiosByType(currentAudioPack);
 	}
 
 	public static Material GetMaterialByName(string name) {
@@ -296,10 +344,50 @@ public class ResourcesManager : MonoBehaviour {
 				mAudios.Add(audio);
 			}
 		}
+		mAudios.Sort(delegate (AudioClip a, AudioClip b) {
+			string typeA = a.name.Substring(a.name.LastIndexOf("@") + 1);
+			string typeB = b.name.Substring(b.name.LastIndexOf("@") + 1);
+			int numA;
+			int numB;
+			switch (typeA) {
+				case "Opening": numA = OPENING_AUDIO; break;
+				case "Safe": numA = SAFE_AUDIO; break;
+				case "Flag": numA = FLAG_AUDIO; break;
+				case "Mark": numA = MARK_AUDIO; break;
+				case "Explosion": numA = EXPLOSION_AUDIO; break;
+				default: numA = -1; break;
+			}
+			switch (typeB) {
+				case "Opening": numB = OPENING_AUDIO; break;
+				case "Safe": numB = SAFE_AUDIO; break;
+				case "Flag": numB = FLAG_AUDIO; break;
+				case "Mark": numB = MARK_AUDIO; break;
+				case "Explosion": numB = EXPLOSION_AUDIO; break;
+				default: numB = -1; break;
+			}
+			return numA.CompareTo(numB);
+		});
 		return mAudios.ToArray();
 	}
 
-	public static int GetAudioTypeCount() {
+	public static string[] GetSkinPackTypes() {
+		Material[] skinPacks = GetMaterialsByType("BlockSurface");
+		List<string> types = new List<string>();
+		foreach (Material material in skinPacks) {
+			string mType = material.name;
+			mType = mType.Substring(mType.LastIndexOf("@") + 1);
+			if (!types.Contains(mType)) {
+				types.Add(mType);
+			}
+		}
+		return types.ToArray();
+	}
+
+	public static int GetSkinPackTypeCount() {
+		return GetMaterialsByType("BlockSurface").Length;
+	}
+
+	public static string[] GetAudioPackTypes() {
 		List<string> types = new List<string>();
 		foreach (AudioClip audio in audios) {
 			string mType = audio.name;
@@ -309,7 +397,11 @@ public class ResourcesManager : MonoBehaviour {
 				types.Add(mType);
 			}
 		}
-		return types.Count;
+		return types.ToArray();
+	}
+
+	public static int GetAudioPackTypeCount() {
+		return GetAudioPackTypes().Length;
 	}
 
 	public static UnityEngine.Object GetAssetByName(string name) {

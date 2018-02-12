@@ -8,48 +8,50 @@ public class BlockController : MonoBehaviour {
 	public float explosionOffset = 2f;
 	public float explosionDelay = 2f;
 	public float expolsionFlashRate = 0.1f;
-	public AudioClip explosionSound;
-	public AudioClip safeSound;
-	public AudioClip flagSound;
-	public AudioClip markSound;
+	public AudioClip safeAudio;
+	public AudioClip flagAudio;
+	public AudioClip markAudio;
+	public AudioClip explosionAudio;
 
-	private GameController game;
+	GameController game;
 
-	private int xNum;
-	private int yNum;
-	private int zNum;
+	int xNum;
+	int yNum;
+	int zNum;
 
-	private List<BlockController> neighbors;
-	private BlockState state;
+	List<BlockController> neighbors;
+	BlockState state;
 
-	private int minesNearBy;
-	private bool isMine;
+	int minesNearBy;
+	bool isMine;
 
-	private Transform cube;
-	private Transform text;
+	Transform cube;
+	Transform text;
 
-	private Renderer cubeRenderer;
-	private Renderer textRenderer;
+	Renderer cubeRenderer;
+	Renderer textRenderer;
 
-	private Rigidbody rigidBody;
-	private Collider collider;
-	private TextMesh textMesh;
+	Rigidbody rigidBody;
+	Collider collider;
+	TextMesh textMesh;
 
 	void Start() {
-
+		safeAudio = ResourcesManager.GetAudioClip(ResourcesManager.SAFE_AUDIO);
+		flagAudio = ResourcesManager.GetAudioClip(ResourcesManager.FLAG_AUDIO);
+		markAudio = ResourcesManager.GetAudioClip(ResourcesManager.MARK_AUDIO);
+		explosionAudio = ResourcesManager.GetAudioClip(ResourcesManager.EXPLOSION_AUDIO);
 	}
 
 	void Update() {
 		if (state != BlockState.HIDDEN) {
 			Quaternion rotation = text.transform.rotation;
-			rotation.SetLookRotation(GameController.mainCamera.transform.forward, GameController.mainCamera.transform.up);
+			rotation.SetLookRotation(game.mainCamera.transform.forward, game.mainCamera.transform.up);
 			text.transform.rotation = rotation;
 		}
 	}
 
 	public void Init(GameController gameController, int xNum, int yNum, int zNum) {
-		this.game = gameController;
-
+		game = gameController;
 		this.xNum = xNum;
 		this.yNum = yNum;
 		this.zNum = zNum;
@@ -130,7 +132,7 @@ public class BlockController : MonoBehaviour {
 		}
 	}
 
-	private void OnHidden() {
+	void OnHidden() {
 		cube.gameObject.SetActive(true);
 		text.gameObject.SetActive(false);
 
@@ -141,13 +143,13 @@ public class BlockController : MonoBehaviour {
 		cubeRenderer.material = ResourcesManager.GetBlockSurfaceMaterial();
 	}
 
-	private void OnFlagged() {
+	void OnFlagged() {
 		game.OnBlockFlagged(this);
 
 		cube.gameObject.SetActive(false);
 		text.gameObject.SetActive(true);
 
-		AudioSource.PlayClipAtPoint(flagSound, transform.position);
+		AudioSource.PlayClipAtPoint(flagAudio, transform.position);
 
 		cube.parent.gameObject.layer = LayerMask.NameToLayer("TextBlock");
 
@@ -161,16 +163,17 @@ public class BlockController : MonoBehaviour {
 		text.localScale = new Vector3(0.025f, 0.025f, 0.025f);
 	}
 
-	private void OnMarked() {
+	void OnMarked() {
 		game.OnBlockDeflagged(this);
 
 		cube.gameObject.SetActive(false);
 		text.gameObject.SetActive(true);
 
-		AudioSource.PlayClipAtPoint(markSound, transform.position);
+		AudioSource.PlayClipAtPoint(markAudio, transform.position);
 
 		cube.parent.gameObject.layer = LayerMask.NameToLayer("TextBlock");
 
+		textMesh.text = "?";
 		textMesh.font = ResourcesManager.GetFont();
 		textMesh.fontStyle = ResourcesManager.GetFontStyle();
 
@@ -180,7 +183,7 @@ public class BlockController : MonoBehaviour {
 		text.localScale = new Vector3(0.025f, 0.025f, 0.025f);
 	}
 
-	private void OnMined() {
+	void OnMined() {
 		cube.gameObject.SetActive(false);
 		text.gameObject.SetActive(true);
 
@@ -208,7 +211,7 @@ public class BlockController : MonoBehaviour {
 				}
 			}
 
-			AudioSource.PlayClipAtPoint(safeSound, transform.position);
+			AudioSource.PlayClipAtPoint(safeAudio, transform.position);
 
 			textMesh.font = ResourcesManager.GetFont();
 			textMesh.fontStyle = ResourcesManager.GetFontStyle();
@@ -234,7 +237,7 @@ public class BlockController : MonoBehaviour {
 			yield return expolsionFlashRate;
 		}
 		text.gameObject.SetActive(true);
-		AudioSource.PlayClipAtPoint(explosionSound, transform.position);
+		AudioSource.PlayClipAtPoint(explosionAudio, transform.position);
 		//yield return new WaitForSeconds(explosionDelay);
 		Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
 		foreach (Collider collider in colliders) {
@@ -248,7 +251,7 @@ public class BlockController : MonoBehaviour {
 				collider.GetComponent<Rigidbody>().AddExplosionForce(UnityEngine.Random.Range(explosionPower * 0.5f, explosionPower * 1.5f), transform.position, explosionRadius, UnityEngine.Random.Range(-explosionOffset, explosionOffset));
 			}
 		}
-		float distance = (transform.position - GameController.mainCamera.transform.position).magnitude;
+		float distance = (transform.position - game.mainCamera.transform.position).magnitude;
 		game.StartCoroutine(game.ExeShakeTask(distance));
 		gameObject.SetActive(false);
 	}

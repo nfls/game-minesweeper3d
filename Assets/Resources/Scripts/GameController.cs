@@ -15,7 +15,7 @@ public class GameController : MonoBehaviour {
 	public int maxZ = 10;
 	public int minesNum = 800;
 
-	public static Camera mainCamera;
+	public Camera mainCamera;
 
 	public float cameraShakeDelay;
 	public float cameraShakeDuration = 1.5f;
@@ -49,10 +49,15 @@ public class GameController : MonoBehaviour {
 	Toggle audioToggle;
 
 	void Start() {
-		Input.simulateMouseWithTouches = true;
 		mainCamera = Camera.main;
+		Input.simulateMouseWithTouches = true;
+		mainCamera.backgroundColor = PreferencesManager.GetPreferredBackgroundColor();
 		mainCameraInitialPosition = mainCamera.transform.position;
 		mainCameraInitialRotation = mainCamera.transform.rotation;
+
+		fieldRotateSpeed = PreferencesManager.fieldRotateSpeed;
+		cameraMoveSpeed = PreferencesManager.cameraMoveSpeed;
+
 		audioToggle = GameObject.Find("Audio Toggle").GetComponent<Toggle>();
 		audioToggle.isOn = InGameData.audioEnabled;
 		if (audioToggle.isOn) {
@@ -66,13 +71,22 @@ public class GameController : MonoBehaviour {
 		pauseCanvas = GameObject.Find("Pause Canvas");
 		fieldPrototype = (GameObject)Resources.Load("Prefabs/Field");
 		blockPrototype = ResourcesManager.GetPrefabByName("Block");
+		//blockPrototype = (GameObject)Resources.Load("Prefabs/Block");
 
 		maxX = InGameData.maxX;
 		maxY = InGameData.maxY;
 		maxZ = InGameData.maxZ;
 		minesNum = InGameData.minesNum;
 
+		if (PreferencesManager.specialEffect) {
+			mainCamera.clearFlags = CameraClearFlags.Nothing;
+		} else {
+			mainCamera.clearFlags = CameraClearFlags.SolidColor;
+		}
+
 		Init();
+
+		AudioSource.PlayClipAtPoint(ResourcesManager.GetAudioClip(ResourcesManager.OPENING_AUDIO), mainCamera.transform.position);
 	}
 
 	void Update() {
@@ -109,16 +123,32 @@ public class GameController : MonoBehaviour {
 
 		if (Input.GetKey("w")) {
 			//field.transform.RotateAround(field.transform.position, Vector3.right, Time.deltaTime * fieldRotateSpeed);
-			RotateCameraDownwards();
+			if (PreferencesManager.yAxisInverse) {
+				RotateCameraUpwards();
+			} else {
+				RotateCameraDownwards();
+			}
 		} else if (Input.GetKey("s")) {
 			//field.transform.RotateAround(field.transform.position, Vector3.left, Time.deltaTime * fieldRotateSpeed);
-			RotateCameraUpwards();
+			if (PreferencesManager.yAxisInverse) {
+				RotateCameraDownwards();
+			} else {
+				RotateCameraUpwards();
+			}
 		} else if (Input.GetKey("a")) {
 			//field.transform.RotateAround(field.transform.position, Vector3.up, Time.deltaTime * fieldRotateSpeed);
-			RotateCameraRightwards();
+			if (PreferencesManager.xAxisInverse) {
+				RotateCameraLeftwards();
+			} else {
+				RotateCameraRightwards();
+			}
 		} else if (Input.GetKey("d")) {
 			//field.transform.RotateAround(field.transform.position, Vector3.down, Time.deltaTime * fieldRotateSpeed);
-			RotateCameraLeftwards();
+			if (PreferencesManager.xAxisInverse) {
+				RotateCameraRightwards();
+			} else {
+				RotateCameraLeftwards();
+			}
 		}
 		if (Input.GetKey("j")) {
 			MoveCameraCloser();
@@ -298,7 +328,11 @@ public class GameController : MonoBehaviour {
 		mainCamera.transform.rotation = mainCameraInitialRotation;
 		mainCamera.transform.position = mainCameraInitialPosition;
 
+		System.GC.Collect();
+
 		Init();
+
+		AudioSource.PlayClipAtPoint(ResourcesManager.GetAudioClip(ResourcesManager.OPENING_AUDIO), mainCamera.transform.position);
 	}
 
 	public bool IsGameOver() {
@@ -427,6 +461,12 @@ public class GameController : MonoBehaviour {
 		}
 
 		gameOver = true;
+
+		if (!NetUtils.IsOffline()) {
+			StartCoroutine(NetUtils.PostScore((int)HudController.timePast, delegate {
+				InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Tip, "Your highest RANK now is " + InGameData.PlayerRankInfo.playerRank + ".\nKeep Working!");
+			}, NetUtils.NullMethod));
+		}
 
 		ShowMenu("You Win !", menuCanvas, 1.5f, 1.5f);
 	}

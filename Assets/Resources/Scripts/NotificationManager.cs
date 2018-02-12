@@ -5,11 +5,11 @@ using System;
 using UnityEngine.UI;
 
 public class NotificationManager : MonoBehaviour {
-	public static float Duration_Default = 3f;
-	public static float Duration_Short = 1f;
-	public static float Duration_Long = 5f;
+	public static readonly float DURATION_DEFAULT = 1f;
+	public static readonly float DURATION_SHORT = 0.5f;
+	public static readonly float DURATION_LONG = 3f;
 
-	public float shadeInDuration = 1f;
+	public float shadeInDuration = 0.1f;
 
 	public static string notificationIconRootDirectory = "Textures/";
 
@@ -43,6 +43,7 @@ public class NotificationManager : MonoBehaviour {
 		notificationBarA = Resources.Load<GameObject>("Prefabs/NotificationBar");
 		notificationBarA = Instantiate(notificationBarA, notificationCanvas.transform);
 		notificationBarB = Instantiate(notificationBarA, notificationCanvas.transform);
+		DontDestroyOnLoad(notificationCanvas);
 		notificationBarA.SetActive(false);
 		notificationBarB.SetActive(false);
 		string[] names = Enum.GetNames(typeof(NotificationType));
@@ -95,7 +96,7 @@ public class NotificationManager : MonoBehaviour {
 	}
 
 	public void NewNotification(NotificationType type, string content) {
-		NewNotification(type, content, Duration_Default);
+		NewNotification(type, content, DURATION_DEFAULT);
 	}
 
 	public void NewNotification(NotificationType type, string content, float duration) {

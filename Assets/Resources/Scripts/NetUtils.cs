@@ -2,55 +2,266 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
+using System;
+using LitJson;
+using System.Runtime.InteropServices;
 
 public class NetUtils {
-	public static bool offlineMode;
-	static string CLIENT_ID;
-	static string CLIENT_SECRET;
-	public static string REFRESH_TOKEN;
-	static string ACCESS_TOKEN;
+	public static readonly string OFFLINE_SIGN = "Cannot resolve destination host";
+	public static readonly string CLIENT_ID = "BX9oQ30TKiXYYnbU0ISYsQ==";
+	public static readonly string CLIENT_SECRET = "vCKja9UBcnk63lElGgBi2i7pjoqgsJtWndV7SiFrcVQ=";
+	public static string REFRESH_TOKEN = "Null";
+	public static string ACCESS_TOKEN = "Null";
+
+	public static bool offlineMode = false;
+
+	public static WWW hotassetsWWW;
 
 	public static void Init() {
-		offlineMode = false;
-		CLIENT_ID = "Jg3NeDU6FAGXdaMXPh9KSEKUwd8laT8y3sDvE5crYIo=";
-		CLIENT_SECRET = "LpL09CBIbK7vrdi9kSUjDemSaqXn17wqkuxURahqOwNJx61XXXIr5iYWzJnY2bjlcuZ6SjuAtJSRYge7HkUQMA==";
+
 	}
 
-	public static IEnumerator GetRefreshToken(string username, string password) {
-		string content = "grant_type=password&username=" + username + "&password=" + password + "&scope=&client_id=" + CLIENT_ID + "&client_secret=" + CLIENT_SECRET;
-		WWWForm form = new WWWForm();
-		Dictionary<string, string> headers = form.headers;
-		headers["Content-Type"] = "application/x-www-form-urlencoded";
-		form.AddField("grant_type", "password");
-		form.AddField("username", username);
-		form.AddField("password", password);
-		form.AddField("scope", "");
-		form.AddField("client_id", CLIENT_ID);
-		form.AddField("client_secret", CLIENT_SECRET);
-		byte[] rawData = Encoding.UTF8.GetBytes(content);
-		WWW www = new WWW("https://api-v3.nfls.io/oauth/accessToken", rawData, headers);
-		yield return www;
-		if (www.error == null) {
-			REFRESH_TOKEN = www.text;
-			Debug.Log(REFRESH_TOKEN);
-		} else {
-			Debug.Log(www.error + " " + content);
-		}
+	public static void LogOut() {
+		REFRESH_TOKEN = "Null";
+		ACCESS_TOKEN = "Null";
+		DataManager.SaveNetData();
 	}
 
-	public static IEnumerator GetAccessToken() {
-		string content = "grant_type=refresh_token&scope=&client_id=" + CLIENT_ID + "&client_secret=" + CLIENT_SECRET;
+	public static IEnumerator GetRefreshToken(string username, string password, Action successAction, Action<string, bool> errorAction) {
+		string content = "grant_type=password&username=" + username + "&password=" + password + "&scope=user.all&client_id=" + CLIENT_ID + "&client_secret=" + CLIENT_SECRET;
 		WWWForm form = new WWWForm();
 		Dictionary<string, string> headers = form.headers;
 		headers["Content-Type"] = "application/x-www-form-urlencoded";
 		byte[] rawData = Encoding.UTF8.GetBytes(content);
-		WWW www = new WWW("https://api-v3.nfls.io/oauth/accessToken", rawData, headers);
+		WWW www = new WWW("https://nfls.io/oauth/accessToken", rawData, headers);
 		yield return www;
 		if (www.error == null) {
-			ACCESS_TOKEN = www.text;
-			Debug.Log(ACCESS_TOKEN);
+			JsonData json = JsonMapper.ToObject(www.text);
+			REFRESH_TOKEN = (string)json["refresh_token"];
+			ACCESS_TOKEN = (string)json["access_token"];
+			DataManager.SaveNetData();
+			successAction.Invoke();
 		} else {
-			Debug.Log(www.error + " " + content);
+			bool losesConnection = false;
+			if (www.error.Equals(OFFLINE_SIGN)) {
+				InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Warning, "Internet request failed due to offline.");
+				losesConnection = true;
+			}
+			errorAction.Invoke(www.error, losesConnection);
 		}
+	}
+
+	public static IEnumerator GetAccessToken(Action successAction, Action<string, bool> errorAction) {
+		string content = "grant_type=refresh_token&scope=user.all&client_id=" + CLIENT_ID + "&client_secret=" + CLIENT_SECRET + "&refresh_token=" + REFRESH_TOKEN;
+		WWWForm form = new WWWForm();
+		Dictionary<string, string> headers = form.headers;
+		headers["Content-Type"] = "application/x-www-form-urlencoded";
+		byte[] rawData = Encoding.UTF8.GetBytes(content);
+		WWW www = new WWW("https://nfls.io/oauth/accessToken", rawData, headers);
+		yield return www;
+		if (www.error == null) {
+			JsonData json = JsonMapper.ToObject(www.text);
+			REFRESH_TOKEN = (string)json["refresh_token"];
+			ACCESS_TOKEN = (string)json["access_token"];
+			DataManager.SaveNetData();
+			successAction.Invoke();
+		} else {
+			bool losesConnection = false;
+			if (www.error.Equals(OFFLINE_SIGN)) {
+				InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Warning, "Internet request failed due to offline.");
+				losesConnection = true;
+			}
+			errorAction.Invoke(www.error, losesConnection);
+		}
+	}
+
+	public static IEnumerator GetVersionInfo(Action successAction, Action<string, bool> errorAction) {
+		string url = "https://nfls.io/oauth/version?client_id=" + CLIENT_ID;
+		WWW www = new WWW(url);
+		yield return www;
+		if (www.error == null) {
+			string[] signs = { " " };
+			string[] versionData = ((string)JsonMapper.ToObject(www.text)["data"]).Split(signs, StringSplitOptions.None);
+			InGameData.VersionData.latestVersionNum = versionData[0];
+			InGameData.VersionData.latestVersionName = versionData[1];
+			InGameData.VersionData.latestVersionInfo = versionData[2];
+			InGameData.VersionData.hotassetsUrl = versionData[3];
+			DataManager.SaveTemperVersionData();
+			successAction.Invoke();
+		} else {
+			bool losesConnection = false;
+			if (www.error.Equals(OFFLINE_SIGN)) {
+				InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Warning, "Internet request failed due to offline.");
+				losesConnection = true;
+			}
+			errorAction.Invoke(www.error, losesConnection);
+		}
+	}
+
+	public static IEnumerator GetUserInfo(Action successAction, Action<string, bool> errorAction) {
+		string url = "https://nfls.io/user/current";
+		WWWForm form = new WWWForm();
+		Dictionary<string, string> headers = form.headers;
+		headers["Authorization"] = "Bearer " + ACCESS_TOKEN;
+		WWW www = new WWW(url, null, headers);
+		yield return www;
+		if (www.error == null) {
+			JsonData json = JsonMapper.ToObject(www.text)["data"];
+			UserManager.name = (string)json["username"];
+			UserManager.email = (string)json["email"];
+			UserManager.phone = (string)json["phone"];
+			UserManager.id = (int)json["id"];
+			UserManager.casHours = (int)json["point"];
+			UserManager.isAdmin = (bool)json["admin"];
+			DataManager.SaveUserData();
+			successAction.Invoke();
+		} else {
+			bool losesConnection = false;
+			if (www.error.Equals(OFFLINE_SIGN)) {
+				InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Warning, "Internet request failed due to offline.");
+				losesConnection = true;
+			}
+			errorAction.Invoke(www.error, losesConnection);
+		}
+	}
+
+	public static IEnumerator GetHotAssets(Action downloadSuccessAction, Action saveSuccessAction, Action<string, bool> errorAction) {
+		if (hotassetsWWW != null) {
+			hotassetsWWW.Dispose();
+		}
+		hotassetsWWW = new WWW(InGameData.VersionData.hotassetsUrl);
+		yield return hotassetsWWW;
+		if (hotassetsWWW.error == null) {
+			downloadSuccessAction.Invoke();
+			InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Tip, "正在写入游戏资源，切勿退出程序，否则炸了不负责！", NotificationManager.DURATION_SHORT);
+			DataManager.SaveHotAssets();
+			DataManager.NewVersionDataFile();
+			saveSuccessAction.Invoke();
+		} else {
+			bool losesConnection = false;
+			if (hotassetsWWW.error.Equals(OFFLINE_SIGN)) {
+				InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Warning, "Internet request failed due to offline.");
+				losesConnection = true;
+			}
+			errorAction.Invoke(hotassetsWWW.error, losesConnection);
+		}
+	}
+
+	public static IEnumerator GetRank(Action successAction, Action<string, bool> errorAction) {
+		string url = "https://nfls.io/game/rank?game=1";
+		WWW www = new WWW(url);
+		yield return www;
+		if (www.error == null) {
+			Debug.Log(www.text);
+			JsonData json = JsonMapper.ToObject(www.text)["data"];
+			AnalyzeRankInfos(json);
+			successAction.Invoke();
+		} else {
+			bool losesConnection = false;
+			if (www.error.Equals(OFFLINE_SIGN)) {
+				InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Warning, "Internet request failed due to offline.");
+				losesConnection = true;
+			}
+			errorAction.Invoke(www.error, losesConnection);
+		}
+	}
+
+	public static IEnumerator PostScore(int time, Action successAction, Action<string, bool> errorAction) {
+		string url = "https://nfls.io/game/rank?game=1";
+		WWWForm form = new WWWForm();
+		Dictionary<string, string> headers = form.headers;
+		headers["Authorization"] = "Bearer " + ACCESS_TOKEN;
+		JsonData json = new JsonData();
+		json["score"] = time;
+		WWW www = new WWW(url, Encoding.UTF8.GetBytes(json.ToJson()), headers);
+		yield return www;
+		if (www.error == null) {
+			json = JsonMapper.ToObject(www.text)["data"];
+			AnalyzeRankInfos(json, true);
+			successAction.Invoke();
+		} else {
+			bool losesConnection = false;
+			if (www.error.Equals(OFFLINE_SIGN)) {
+				InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Warning, "Internet request failed due to offline.");
+				losesConnection = true;
+			}
+			errorAction.Invoke(www.error, losesConnection);
+		}
+	}
+
+	static void AnalyzeRankInfos(JsonData json) {
+		AnalyzeRankInfos(json, false);
+	}
+
+	static void AnalyzeRankInfos(JsonData json, bool sorts) {
+		InGameData.rankInfos = new List<InGameData.PlayerRankInfo>();
+		for (int i = 0; i < json.Count; i++) {
+			JsonData data = json[i];
+			InGameData.PlayerRankInfo playerRankInfo = new InGameData.PlayerRankInfo();
+			playerRankInfo.name = (string)data["user"]["username"];
+			playerRankInfo.id = (int)data["user"]["id"];
+			playerRankInfo.time = (int)data["score"];
+			playerRankInfo.rank = (int)data["rank"];
+			playerRankInfo.isAdmin = (bool)data["user"]["admin"];
+			if (playerRankInfo.name.Equals(UserManager.name)) {
+				InGameData.PlayerRankInfo.playerRank = playerRankInfo.rank;
+				playerRankInfo.isPlayer = true;
+			}
+			InGameData.rankInfos.Add(playerRankInfo);
+		}
+		if (sorts) {
+			InGameData.rankInfos.Sort(delegate (InGameData.PlayerRankInfo p1, InGameData.PlayerRankInfo p2) {
+				return p1.time.CompareTo(p2.time);
+			});
+			int lastTime = -1;
+			for (int i = 0; i < InGameData.rankInfos.Count; i++) {
+				InGameData.PlayerRankInfo rankInfo = InGameData.rankInfos[i];
+				if (rankInfo.time != lastTime) {
+					rankInfo.rank = i + 1;
+				} else {
+					rankInfo.rank = InGameData.rankInfos[i - 1].rank;
+				}
+				if (rankInfo.name.Equals(UserManager.name)) {
+					InGameData.PlayerRankInfo.playerRank = rankInfo.rank;
+					rankInfo.isPlayer = true;
+				}
+			}
+		}
+	}
+
+	public static bool IsOffline() {
+		if (offlineMode) {
+			return true;
+		} else {
+			return Application.internetReachability == NetworkReachability.NotReachable;
+		}
+	}
+
+	public static bool ReachesInternet() {
+		return Application.internetReachability != NetworkReachability.NotReachable;
+	}
+
+	public static bool UsesWifi() {
+		return Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork;
+	}
+
+	public static bool UsesData() {
+		return Application.internetReachability == NetworkReachability.ReachableViaCarrierDataNetwork;
+	}
+
+	public static int GetResponseCode(string error) {
+		try {
+			return int.Parse(error.Substring(0, error.IndexOf(" ")));
+		} catch {
+			return -1;
+		}
+	}
+
+	public static void NullMethod() {
+
+	}
+
+	public static void NullMethod(string error, bool losesConnection) {
+
 	}
 }

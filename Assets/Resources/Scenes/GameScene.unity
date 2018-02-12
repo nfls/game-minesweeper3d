@@ -1350,6 +1350,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 485c511df938b4dbdab005fa93b0b58b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  timePast: 0
 --- !u!1 &962439159
 GameObject:
   m_ObjectHideFlags: 0
@@ -1527,6 +1528,7 @@ MonoBehaviour:
   maxY: 10
   maxZ: 10
   minesNum: 100
+  mainCamera: {fileID: 0}
   cameraShakeDelay: 0
   cameraShakeDuration: 0.5
   cameraShakePower: 6

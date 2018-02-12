@@ -9,6 +9,10 @@ public class PreferencesManager : MonoBehaviour {
 	public static int fieldRotateSpeed;
 	public static int cameraMoveSpeed;
 
+	void Update() {
+
+	}
+
 	public static void Init() {
 		xAxisInverse = bool.Parse(PlayerPrefs.GetString("xAxisInverse", "false"));
 		yAxisInverse = bool.Parse(PlayerPrefs.GetString("yAxisInverse", "false"));
@@ -23,6 +27,7 @@ public class PreferencesManager : MonoBehaviour {
 		PlayerPrefs.SetString("specialEffect", specialEffect.ToString());
 		PlayerPrefs.SetInt("fieldRotateSpeed", fieldRotateSpeed);
 		PlayerPrefs.SetInt("cameraMoveSpeed", cameraMoveSpeed);
+		PlayerPrefs.Save();
 	}
 
 	public static void SetPreferredNumColorSet(NumColorSet numColorSet) {

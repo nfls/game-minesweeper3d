@@ -42,4 +42,15 @@ public class PiplineBuilder : Editor {
 		}
 		AssetDatabase.Refresh();
 	}
+
+	[MenuItem("Tool/Export Std. Game Config.")]
+	static void ExportStdGameConfig() {
+		DataManager.InitCrypto();
+		JsonData json = new JsonData();
+		json["sMaxX"] = 8;
+		json["sMaxY"] = 8;
+		json["sMaxZ"] = 8;
+		json["sMinesNum"] = 80;
+		DataManager.SaveDataToFile(Application.dataPath + "/Bundled Resources/Document@StdGameConfig.txt", json);
+	}
 }
