@@ -38,12 +38,12 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.4465934, g: 0.49642956, b: 0.5748249, a: 1}
+  m_IndirectSpecularColor: {r: 0.44537085, g: 0.4893781, b: 0.54362667, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 11
-  m_GIWorkflowMode: 1
+  m_GIWorkflowMode: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -1350,7 +1350,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 485c511df938b4dbdab005fa93b0b58b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timePast: 0
 --- !u!1 &962439159
 GameObject:
   m_ObjectHideFlags: 0

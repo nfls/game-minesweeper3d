@@ -108,7 +108,7 @@ public class ResourcesManager : MonoBehaviour {
 			}
 		}
 
-		//hotassets.Unload(false);
+		hotassets.Unload(false);
 	}
 
 	public static void LoadUpConfig() {
