@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using LitJson;
 using System;
-using System.Runtime.CompilerServices;
 
 public class ResourcesManager : MonoBehaviour {
 	public static readonly int OPENING_AUDIO = 0;
