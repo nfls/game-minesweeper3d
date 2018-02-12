@@ -114,6 +114,10 @@ public class NetUtils {
 			UserManager.casHours = (int)json["point"];
 			UserManager.isAdmin = (bool)json["admin"];
 			DataManager.SaveUserData();
+			if (!(bool)json["verified"]) {
+				InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Warning, "You need to finish Real Name AUTH. to store your game rank!");
+				Application.OpenURL("https://nfls.io/#/alumni/auth");
+			}
 			successAction.Invoke();
 		} else {
 			bool losesConnection = false;
