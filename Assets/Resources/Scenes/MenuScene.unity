@@ -7116,7 +7116,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Competite Worldwide!!!
+  m_Text: Compete Worldwide!!!
 --- !u!222 &1101331606
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -10716,9 +10716,9 @@ MonoBehaviour:
   minDistance: 1
   maxDistance: 100
   maxX: 9
-  maxY: 10
-  maxZ: 10
-  minesNum: 246
+  maxY: 9
+  maxZ: 8
+  minesNum: 299
   mainCamera: {fileID: 0}
   cameraShakeDelay: 0
   cameraShakeDuration: 1.5
