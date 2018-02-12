@@ -140,7 +140,7 @@ public class InitSceneController : MonoBehaviour {
 				IsLoading = true;
 			}, delegate {
 				IsLoading = false;
-				notificationManager.NewNotification(NotificationManager.NotificationType.Tip, "Writing Finsihed !", NotificationManager.DURATION_SHORT);
+				notificationManager.NewNotification(NotificationManager.NotificationType.Tip, "Writing Finished !", NotificationManager.DURATION_SHORT);
 				ResourcesManager.Init();
 				SceneManager.LoadScene("MenuScene");
 			}, delegate (string error, bool losesConnection) {
