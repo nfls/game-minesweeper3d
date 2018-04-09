@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -9,7 +8,7 @@ public class InitSceneController : MonoBehaviour {
 	public float loadingIconRotateSpeed = 15f;
 	public float loadingTextFlashSpeed = 1f;
 
-	bool isLoading = false;
+	bool isLoading;
 
 	bool IsLoading {
 		set {
@@ -133,6 +132,12 @@ public class InitSceneController : MonoBehaviour {
 	}
 
 	public void StartUpdateTask() {
+		if (InGameData.VersionData.needsReinstall) {
+			notificationManager.NewNotification(NotificationManager.NotificationType.Warning, "Brand New Version Released !", NotificationManager.DURATION_DEFAULT);
+			notificationManager.NewNotification(NotificationManager.NotificationType.Warning, "Older Version May Crush !", NotificationManager.DURATION_DEFAULT);
+			notificationManager.NewNotification(NotificationManager.NotificationType.Warning, "Reinstall the new version !", NotificationManager.DURATION_LONG);
+			StartCoroutine(ExeOpenUrlTask("https://nfls.io/#/media/game", NotificationManager.DURATION_DEFAULT * 2));
+		}
 		if (InGameData.VersionData.needsUpdate) {
 			IsDownloading = true;
 			StartCoroutine(NetUtils.GetHotAssets(delegate {
@@ -142,15 +147,17 @@ public class InitSceneController : MonoBehaviour {
 				IsLoading = false;
 				notificationManager.NewNotification(NotificationManager.NotificationType.Tip, "Writing Finished !", NotificationManager.DURATION_SHORT);
 				ResourcesManager.Init();
+				InGameData.casHourManager.StartPeriodRewardCheckTask();
 				SceneManager.LoadScene("MenuScene");
 			}, delegate (string error, bool losesConnection) {
 				IsDownloading = false;
 				if (!losesConnection) {
-					notificationManager.NewNotification(NotificationManager.NotificationType.Warning, "服务器出错，请把错误代码[" + NetUtils.GetResponseCode(error) + "]告诉开发人员！", NotificationManager.DURATION_LONG);
+					notificationManager.NewNotification(NotificationManager.NotificationType.Warning, "Server Error，Please Report Error Code [" + NetUtils.GetResponseCode(error) + "] To Development Team!", NotificationManager.DURATION_LONG);
 				}
 			}));
 		} else {
 			ResourcesManager.Init();
+			InGameData.casHourManager.StartPeriodRewardCheckTask();
 			SceneManager.LoadScene("MenuScene");
 		}
 	}
@@ -208,9 +215,9 @@ public class InitSceneController : MonoBehaviour {
 	public void HandleGetAccessTokenSucceeds() {
 		notificationManager.NewNotification(NotificationManager.NotificationType.Tip, "Login Succeeds!");
 		StartCoroutine(NetUtils.GetVersionInfo(delegate {
-			InGameData.VersionData.PrintData();
+			//InGameData.VersionData.PrintData();
 			StartCoroutine(NetUtils.GetUserInfo(delegate {
-				UserManager.PrintData();
+				//UserManager.PrintData();
 				IsLoading = false;
 				StartUpdateTask();
 			}, NetUtils.NullMethod));
@@ -253,5 +260,10 @@ public class InitSceneController : MonoBehaviour {
 			}
 			yield return 0;
 		}
+	}
+
+	public static IEnumerator ExeOpenUrlTask(string url, float delay) {
+		yield return new WaitForSeconds(delay);
+		Application.OpenURL(url);
 	}
 }

@@ -130,7 +130,14 @@ public class DataManager {
 		json["name"] = UserManager.name;
 		json["level"] = UserManager.level;
 		json["exp"] = UserManager.exp;
+		json["hourRewarded"] = UserManager.hourRewarded;
+		json["rewardDate"] = UserManager.rewardDate.ToString();
 		SaveDataToFile(USER_DATA_PATH, json);
+	}
+
+	public static void ResetDailyReward() {
+		UserManager.hourRewarded = 0f;
+		SaveUserData();
 	}
 
 	public static void SaveAchievementData() {
@@ -168,6 +175,7 @@ public class DataManager {
 		json["versionNum"] = InGameData.VersionData.latestVersionNum;
 		json["versionName"] = InGameData.VersionData.latestVersionName;
 		json["versionInfo"] = InGameData.VersionData.latestVersionInfo;
+		json["reinstallVersionNum"] = InGameData.VersionData.reinstallVersionNum;
 		SaveDataToFile(TEMPER_VERSION_DATA_PATH, json);
 	}
 
@@ -201,6 +209,16 @@ public class DataManager {
 		UserManager.name = (string)json["name"];
 		UserManager.level = (int)json["level"];
 		UserManager.exp = (int)json["exp"];
+		try {
+			UserManager.hourRewarded = (double)json["hourRewarded"];
+		} catch {
+			UserManager.hourRewarded = 0f;
+		}
+		try {
+			UserManager.rewardDate = DateTime.Parse((string)json["rewardDate"]);
+		} catch {
+			UserManager.rewardDate = DateTime.Now;
+		}
 	}
 
 	public static void LoadAchievementData() {
@@ -218,6 +236,11 @@ public class DataManager {
 		InGameData.VersionData.versionNum = (string)json["versionNum"];
 		InGameData.VersionData.versionName = (string)json["versionName"];
 		InGameData.VersionData.versionInfo = (string)json["versionInfo"];
+		try {
+			InGameData.VersionData.reinstallVersionNum = (string)json["reinstallVersionNum"];
+		} catch {
+			InGameData.VersionData.reinstallVersionNum = "Null";
+		}
 	}
 
 	public static JsonData ReadDataFromFile(string path) {

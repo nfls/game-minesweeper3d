@@ -4,7 +4,6 @@ using UnityEngine;
 using System.Text;
 using System;
 using LitJson;
-using System.Runtime.InteropServices;
 
 public class NetUtils {
 	public static readonly string OFFLINE_SIGN = "Cannot resolve destination host";
@@ -13,7 +12,7 @@ public class NetUtils {
 	public static string REFRESH_TOKEN = "Null";
 	public static string ACCESS_TOKEN = "Null";
 
-	public static bool offlineMode = false;
+	public static bool offlineMode;
 
 	public static WWW hotassetsWWW;
 
@@ -76,7 +75,7 @@ public class NetUtils {
 	}
 
 	public static IEnumerator GetVersionInfo(Action successAction, Action<string, bool> errorAction) {
-		string url = "https://nfls.io/oauth/version?client_id=" + CLIENT_ID;
+		string url = "https://nfls.io/device/version?client_id=" + CLIENT_ID;
 		WWW www = new WWW(url);
 		yield return www;
 		if (www.error == null) {
@@ -86,6 +85,7 @@ public class NetUtils {
 			InGameData.VersionData.latestVersionName = versionData[1];
 			InGameData.VersionData.latestVersionInfo = versionData[2];
 			InGameData.VersionData.hotassetsUrl = versionData[3];
+			InGameData.VersionData.reinstallVersionNum = versionData[4];
 			DataManager.SaveTemperVersionData();
 			successAction.Invoke();
 		} else {
@@ -137,7 +137,7 @@ public class NetUtils {
 		yield return hotassetsWWW;
 		if (hotassetsWWW.error == null) {
 			downloadSuccessAction.Invoke();
-			InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Tip, "正在写入游戏资源，切勿退出程序，否则炸了不负责！", NotificationManager.DURATION_SHORT);
+			InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Tip, "Writing Resources Into Disk, DO NOT quit the Game!", NotificationManager.DURATION_SHORT);
 			DataManager.SaveHotAssets();
 			DataManager.NewVersionDataFile();
 			saveSuccessAction.Invoke();
@@ -231,14 +231,41 @@ public class NetUtils {
 				}
 			}
 		}
+		/*
+		for (int i = 0; i < InGameData.rankInfos.Count; i++) {
+			Debug.Log(InGameData.rankInfos[i].name);
+		}
+		*/
+	}
+
+	public static IEnumerator PostCasHours(double casHours, Action successAction, Action<string, bool> errorAction) {
+		string url = "https://nfls.io/game/update";
+		WWWForm form = new WWWForm();
+		Dictionary<string, string> headers = form.headers;
+		headers["Authorization"] = "Bearer " + ACCESS_TOKEN;
+		headers["Content-Type"] = "application/json";
+		JsonData json = new JsonData();
+		json["value"] = DataManager.Encrypt(Math.Round(casHours, 2).ToString());
+		WWW www = new WWW(url, Encoding.UTF8.GetBytes(json.ToJson()), headers);
+		yield return www;
+		if (www.error == null) {
+			InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.GainCasHours, "Reward " + Math.Round(casHours, 2) + " CAS Hours!", NotificationManager.DURATION_LONG);
+			successAction.Invoke();
+		} else {
+			bool losesConnection = false;
+			if (www.error.Equals(OFFLINE_SIGN)) {
+				InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Warning, "Internet request failed due to offline.");
+				losesConnection = true;
+			}
+			errorAction.Invoke(www.error, losesConnection);
+		}
 	}
 
 	public static bool IsOffline() {
 		if (offlineMode) {
 			return true;
-		} else {
-			return Application.internetReachability == NetworkReachability.NotReachable;
 		}
+		return Application.internetReachability == NetworkReachability.NotReachable;
 	}
 
 	public static bool ReachesInternet() {

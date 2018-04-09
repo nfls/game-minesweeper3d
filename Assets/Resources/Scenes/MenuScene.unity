@@ -9752,7 +9752,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: -1390, y: 850}
-  m_SizeDelta: {x: 1000, y: 50}
+  m_SizeDelta: {x: 1000, y: 100}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1587742621
 MonoBehaviour:
@@ -10715,10 +10715,10 @@ MonoBehaviour:
   cameraMoveSpeed: 10
   minDistance: 1
   maxDistance: 100
-  maxX: 9
+  maxX: 8
   maxY: 7
-  maxZ: 7
-  minesNum: 172
+  maxZ: 10
+  minesNum: 242
   mainCamera: {fileID: 0}
   cameraShakeDelay: 0
   cameraShakeDuration: 1.5

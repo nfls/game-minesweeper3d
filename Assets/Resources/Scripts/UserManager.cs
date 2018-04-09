@@ -1,6 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using System;
 
 public class UserManager {
 	public static string name;
@@ -10,6 +9,8 @@ public class UserManager {
 	public static int level;
 	public static int exp;
 	public static int casHours;
+	public static double hourRewarded;
+	public static DateTime rewardDate;
 	public static bool isAdmin;
 
 	public static void Init() {
@@ -20,6 +21,8 @@ public class UserManager {
 		level = 0;
 		exp = 0;
 		casHours = -1;
+		hourRewarded = 0d;
+		rewardDate = DateTime.Now;
 		isAdmin = false;
 	}
 
@@ -41,6 +44,7 @@ public class UserManager {
 		Debug.Log("Email = " + email);
 		Debug.Log("ID = " + id);
 		Debug.Log("CAS Hours = " + casHours);
+		Debug.Log("CAS Hours Rewarded = " + hourRewarded);
 		Debug.Log("Is Admin = " + isAdmin);
 	}
 }

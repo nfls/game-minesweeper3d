@@ -123,7 +123,7 @@ public class MenuSceneController : MonoBehaviour {
 #if UNITY_EDITOR
 		UnityEditor.EditorApplication.isPlaying = false;
 #else
-				Application.Quit();
+		Application.Quit();
 #endif
 	}
 
@@ -133,21 +133,26 @@ public class MenuSceneController : MonoBehaviour {
 			InGameData.minesNum = v;
 		} else {
 			if (slider.name.Contains("MaxX")) {
-
 				InGameData.maxX = v;
 			} else if (slider.name.Contains("MaxY")) {
-
 				InGameData.maxY = v;
 			} else if (slider.name.Contains("MaxZ")) {
-
 				InGameData.maxZ = v;
 			}
 			Slider mineSlider = slider.transform.parent.Find("Mines Num Slider").GetComponent<Slider>();
 			int minesNum = InGameData.maxX * InGameData.maxY * InGameData.maxZ - 1;
-			if (minesNum < InGameData.minesNum) {
-				mineSlider.value = minesNum;
+			if (minesNum < 0) {
+				Debug.Log("x = " + InGameData.maxX);
+				Debug.Log("y = " + InGameData.maxY);
+				Debug.Log("z = " + InGameData.maxZ);
 			}
 			mineSlider.maxValue = minesNum;
+			if (minesNum < InGameData.minesNum) {
+				mineSlider.value = minesNum;
+				InGameData.minesNum = minesNum;
+			} else if (minesNum > InGameData.minesNum) {
+				mineSlider.maxValue = minesNum;
+			}
 		}
 		slider.transform.Find("Num Text").GetComponent<Text>().text = v + "";
 	}
@@ -179,6 +184,7 @@ public class MenuSceneController : MonoBehaviour {
 	void LogOut() {
 		UserManager.LogOut();
 		NetUtils.LogOut();
+		InGameData.casHourManager.LogOut();
 		InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Tip, "Log Out Succeeds!");
 	}
 

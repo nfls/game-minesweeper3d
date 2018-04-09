@@ -79,11 +79,11 @@ public class ResourcesManager : MonoBehaviour {
 
 		LoadUpHotAssets();
 
-		System.GC.Collect();
+		GC.Collect();
 	}
 
 	public static void LoadUpHotAssets() {
-		//string dir = Application.dataPath + "/AssetBundles/hotassets";
+		// string dir = Application.dataPath + "/AssetBundles/hotassets";
 		AssetBundle hotassets = AssetBundle.LoadFromFile(DataManager.HOT_ASSETS_PATH);
 
 		string[] names = hotassets.GetAllAssetNames();
@@ -115,6 +115,11 @@ public class ResourcesManager : MonoBehaviour {
 		InGameData.sMaxY = (int)json["sMaxY"];
 		InGameData.sMaxZ = (int)json["sMaxZ"];
 		InGameData.sMinesNum = (int)json["sMinesNum"];
+		CasHourManager.periodTime = (int)json["cPeriodTime"];
+		CasHourManager.periodReward = (double)json["cPeriodReward"];
+		CasHourManager.gameWinReward = (double)json["cGameWinReward"];
+		CasHourManager.dailyRewardLimit = (double)json["cDailyRewardLimit"];
+		CasHourManager.singleRewardLimit = (double)json["cSingleRewardLimit"];
 	}
 
 	public static void SetAppearance() {
@@ -181,9 +186,8 @@ public class ResourcesManager : MonoBehaviour {
 	public static Color GetTextColor(int num) {
 		if (num >= 1 && num <= 26) {
 			return textColors[num - 1];
-		} else {
-			return Color.black;
 		}
+		return Color.black;
 	}
 
 	public static Color GetTextColor(string symbol) {
@@ -237,6 +241,7 @@ public class ResourcesManager : MonoBehaviour {
 		}
 		*/
 		audioClips = GetAudiosByType(currentAudioPack);
+		Debug.Log("Load " + currentAudioPack + " Audio Pack !");
 	}
 
 	public static Material GetMaterialByName(string name) {

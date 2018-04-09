@@ -406,7 +406,7 @@ public class GameController : MonoBehaviour {
 #if UNITY_EDITOR
 		UnityEditor.EditorApplication.isPlaying = false;
 #else
-				Application.Quit();
+		Application.Quit();
 #endif
 	}
 
@@ -466,6 +466,7 @@ public class GameController : MonoBehaviour {
 			StartCoroutine(NetUtils.PostScore((int)HudController.timePast, delegate {
 				InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Tip, "Your highest RANK now is " + InGameData.PlayerRankInfo.playerRank + ".\nKeep Working!");
 			}, NetUtils.NullMethod));
+			InGameData.casHourManager.RewardGameWin();
 		}
 
 		ShowMenu("You Win !", menuCanvas, 1.5f, 1.5f);
