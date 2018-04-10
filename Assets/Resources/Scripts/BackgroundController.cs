@@ -12,7 +12,7 @@ public class BackgroundController : GameController {
 
 		fieldPrototype = (GameObject)Resources.Load("Prefabs/Field");
 		blockPrototype = ResourcesManager.GetPrefabByName("Block");
-		//blockPrototype = (GameObject)Resources.Load("Prefabs/Block");
+		// blockPrototype = (GameObject)Resources.Load("Prefabs/Block");
 
 		Init();
 	}

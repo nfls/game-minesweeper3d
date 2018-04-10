@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.4465934, g: 0.49642956, b: 0.5748249, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -7378,7 +7378,7 @@ Light:
   serializedVersion: 8
   m_Type: 1
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 0.7
+  m_Intensity: 1.4
   m_Range: 10
   m_SpotAngle: 30
   m_CookieSize: 10
@@ -10715,10 +10715,10 @@ MonoBehaviour:
   cameraMoveSpeed: 10
   minDistance: 1
   maxDistance: 100
-  maxX: 8
+  maxX: 10
   maxY: 7
-  maxZ: 10
-  minesNum: 242
+  maxZ: 7
+  minesNum: 103
   mainCamera: {fileID: 0}
   cameraShakeDelay: 0
   cameraShakeDuration: 1.5
