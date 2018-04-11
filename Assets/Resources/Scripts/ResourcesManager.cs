@@ -209,6 +209,7 @@ public class ResourcesManager : MonoBehaviour {
 
 	public static void LoadSkinPack() {
 		blockSurfaceMaterial = GetMaterialByName("BlockSurface@" + currentSkinPack);
+		Debug.Log("Load " + currentSkinPack + " Skin Pack !");
 	}
 
 	public static void LoadTextFont() {

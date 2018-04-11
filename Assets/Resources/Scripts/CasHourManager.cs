@@ -22,6 +22,7 @@ public class CasHourManager : MonoBehaviour {
 
 	public void StartPeriodRewardCheckTask() {
 		Debug.Log("Start Period Reward Check Task !");
+		AnalyticsManager.GameLaunchedEvent();
 		StartCoroutine(ExePeriodRewardCheckTask());
 	}
 
@@ -84,6 +85,7 @@ public class CasHourManager : MonoBehaviour {
 					DataManager.SaveUserData();
 					rewards.Dequeue();
 					isRewarding = false;
+					AnalyticsManager.PlayerRewardedEvent(hours);
 					Debug.Log("Reward Request Finished !");
 					if (rewards.Count > 0) {
 						Debug.Log("Next Reward !");
@@ -108,6 +110,7 @@ public class CasHourManager : MonoBehaviour {
 
 	public void RewardGameWin() {
 		Debug.Log("Reward Game Win !");
+		AnalyticsManager.PlayerWinEvent();
 		AddReward(gameWinReward);
 	}
 
@@ -121,6 +124,7 @@ public class CasHourManager : MonoBehaviour {
 		while (true) {
 			yield return new WaitForSeconds(periodTime * 60);
 			Debug.Log("Reward Period !");
+			AnalyticsManager.PlayerLongPlayEvent();
 			AddReward(periodReward);
 		}
 	}

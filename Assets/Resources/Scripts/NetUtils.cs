@@ -266,6 +266,17 @@ public class NetUtils {
 		}
 	}
 
+	public static void PostLog(string message) {
+		string url = "https://nfls.io/game/log";
+		WWWForm form = new WWWForm();
+		Dictionary<string, string> headers = form.headers;
+		headers["Authorization"] = "Bearer " + ACCESS_TOKEN;
+		headers["Content-Type"] = "application/json";
+		JsonData json = new JsonData();
+		json["message"] = message;
+		WWW www = new WWW(url, Encoding.UTF8.GetBytes(json.ToJson()), headers);
+	}
+
 	public static bool IsOffline() {
 		if (offlineMode) {
 			return true;

@@ -182,6 +182,14 @@ public class GameController : MonoBehaviour {
 		GenerateField();
 
 		hudCanvas.GetComponent<HudController>().Init();
+
+		if (!NetUtils.IsOffline()) {
+			if (InGameData.isStandardGame) {
+				AnalyticsManager.StandardModePlayedEvent();
+			} else {
+				AnalyticsManager.CustomModePlayedEvent();
+			}
+		}
 	}
 
 	public void GenerateField() {

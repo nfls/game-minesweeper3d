@@ -52,7 +52,7 @@ public class MenuSceneController : MonoBehaviour {
 			AudioListener.volume = 0;
 		}
 
-		InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Tip, "Welcome, " + UserManager.name + "!");
+		InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Tip, "Welcome, " + UserManager.name + "!\nPlay for " + CasHourManager.periodTime + "min to gain a reward!", NotificationManager.DURATION_LONG);
 	}
 
 	public void OnBackgroundToggleChanged(GameObject toggle) {
