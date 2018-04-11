@@ -107,11 +107,16 @@ public class NetUtils {
 		yield return www;
 		if (www.error == null) {
 			JsonData json = JsonMapper.ToObject(www.text)["data"];
+			Debug.Log(json.ToJson());
 			UserManager.name = (string)json["username"];
 			UserManager.email = (string)json["email"];
 			UserManager.phone = (string)json["phone"];
 			UserManager.id = (int)json["id"];
-			UserManager.casHours = (int)json["point"];
+			try {
+				UserManager.casHours = (double)json["point"];
+			} catch {
+				UserManager.casHours = (int)json["point"];
+			}
 			UserManager.isAdmin = (bool)json["admin"];
 			DataManager.SaveUserData();
 			if (!(bool)json["verified"]) {

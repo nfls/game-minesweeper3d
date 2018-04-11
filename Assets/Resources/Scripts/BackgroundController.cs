@@ -24,6 +24,10 @@ public class BackgroundController : GameController {
 			MoveCameraFurther();
 		} else if (Input.GetKey("r")) {
 			ResetCameraTransform();
+		} else if (Input.mouseScrollDelta.y > float.Epsilon) {
+			MoveCameraCloser();
+		} else if (Input.mouseScrollDelta.y < -float.Epsilon) {
+			MoveCameraFurther();
 		}
 	}
 

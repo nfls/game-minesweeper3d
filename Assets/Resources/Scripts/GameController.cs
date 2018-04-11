@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -165,6 +166,10 @@ public class GameController : MonoBehaviour {
 					ShowMenu("Pause", pauseCanvas, 0f, 1.5f);
 				}
 			}
+		} else if (Input.mouseScrollDelta.y > float.Epsilon) {
+			MoveCameraCloser();
+		} else if (Input.mouseScrollDelta.y < -float.Epsilon) {
+			MoveCameraFurther();
 		}
 	}
 
