@@ -46,6 +46,7 @@ public class NetUtils {
 				InGameData.notificationManager.NewNotification(NotificationManager.NotificationType.Warning, "Internet request failed due to offline.");
 				losesConnection = true;
 			}
+			Debug.Log("Login Failed");
 			errorAction.Invoke(www.error, losesConnection);
 		}
 	}
@@ -107,10 +108,17 @@ public class NetUtils {
 		yield return www;
 		if (www.error == null) {
 			JsonData json = JsonMapper.ToObject(www.text)["data"];
-			Debug.Log(json.ToJson());
 			UserManager.name = (string)json["username"];
-			UserManager.email = (string)json["email"];
-			UserManager.phone = (string)json["phone"];
+			try {
+				UserManager.email = (string)json["email"];
+			} catch {
+				UserManager.email = "Null";
+			}
+			try {
+				UserManager.phone = (string)json["phone"];
+			} catch {
+				UserManager.phone = "Null";
+			}
 			UserManager.id = (int)json["id"];
 			try {
 				UserManager.casHours = (double)json["point"];
